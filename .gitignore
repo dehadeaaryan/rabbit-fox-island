@@ -33,3 +33,4 @@
 
 # the vscode folder
 .vscode
+.vscode/*

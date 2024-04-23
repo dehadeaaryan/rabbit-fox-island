@@ -23,10 +23,27 @@ To run the project, run the following command in the build directory:
 ./RabbitFoxIsland
 ```
 
+## Idea
+
+- Have a 2D grid (vector of 8 vectors with 8 values) representing each square on the island.
+- 3 options
+  - Processor 0 handles all border squares, remaining 6 processors handle each row of squares.
+  - Processor 0 handles all border squares, remaining 6 processors handle each column of squares.
+  - processor 0 handles all border squares, remaining 36 processors handle each square.
+- Using option 1 for now.
+- Each processor will have a 2D grid (vector of 8 vectors with 8 values) representing the squares it is responsible for.
+- Have a square class that does calculations and holds the values of the square.
+- Have a rabbit struct that holds the values of the rabbit.
+- Have a fox struct that holds the values of the fox.
+- Have a vegetation struct that holds the values of the vegetation.
+- Have a function that initializes the island with rabbits, foxes, and vegetation.
+- Have a function that updates the island based on the rules of the game.
+- Have a function that prints the island.
+
 ## Authors
 
-[Aaryan Dehade](https://github.com/dehadeaaryan)
-[Mann Patel](https://github.com/Mann1562)
+- [Aaryan Dehade](https://github.com/dehadeaaryan)
+- [Mann Patel](https://github.com/Mann1562)
 
 ## License
 
