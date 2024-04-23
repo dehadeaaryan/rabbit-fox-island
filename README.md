@@ -40,6 +40,9 @@ To run the project, run the following command in the build directory:
 - Have a function that updates the island based on the rules of the game.
 - Have a function that prints the island.
 
+  
+*** - CHECK OUT INTERLEAVED DECOMPOSITION ***
+
 ## Authors
 
 - [Aaryan Dehade](https://github.com/dehadeaaryan)
