@@ -20,15 +20,14 @@
 #define MID_HIGH_RABBITS_T1 701
 #define HIGH_RABBITS_T1 5001
 
-#define LOW_RABBITS_T2 2
-#define MID_LOW_RABBITS_T2 11
-#define MID_HIGH_RABBITS_T2 51
-#define HIGH_RABBITS_T2 101
+#define LOW_RABBITS_FOX 3
+#define MID_RABBITS_FOX 10
+#define HIGH_RABBITS_FOX 40
 
-#define LOW_FOXES 3
-#define MID_LOW_FOXES 10
-#define MID_HIGH_FOXES 40
-#define HIGH_FOXES 101
+#define LOW_FOXES 2
+#define MID_LOW_FOXES 11
+#define MID_HIGH_FOXES 51
+#define HIGH_FOXES 100
 
 // Define constants for ranges of vegetation levels
 #define LOW_VEGETATION_LEVEL 0.1
@@ -91,7 +90,7 @@ void visualizeIsland() {
     }
 }
 
-// Function to determine the number of baby rabbits born based on Table 1
+// Rabbit birth
 int calculateBabyRabbits(double vegetation, int initialRabbits) {
     if (vegetation < LOW_VEGETATION) {
         if (initialRabbits < LOW_RABBITS_T1) {
@@ -106,13 +105,164 @@ int calculateBabyRabbits(double vegetation, int initialRabbits) {
             return 2;
         }
     } else if (vegetation < MID_VEGETATION) {
-        // logic for mid-range vegetation
+        if (initialRabbits < LOW_RABBITS_T1) {
+            return 0;
+        } else if (initialRabbits < MID_LOW_RABBITS_T1) {
+            return 4;
+        } else if (initialRabbits < MID_HIGH_RABBITS_T1) {
+            return 4;
+        } else if (initialRabbits < HIGH_RABBITS_T1) {
+            return 3;
+        } else {
+            return 3;
+        }
     } else if (vegetation < HIGH_VEGETATION) {
-        // logic for high-range vegetation
+        if (initialRabbits < LOW_RABBITS_T1) {
+            return 0;
+        } else if (initialRabbits < MID_LOW_RABBITS_T1) {
+            return 6;
+        } else if (initialRabbits < MID_HIGH_RABBITS_T1) {
+            return 5;
+        } else if (initialRabbits < HIGH_RABBITS_T1) {
+            return 4;
+        } else {
+            return 4;
+        }
     } else {
-        // handle case where vegetation level is very high
+        if (initialRabbits < LOW_RABBITS_T1) {
+            return 0;
+        } else if (initialRabbits < MID_LOW_RABBITS_T1) {
+            return 9;
+        } else if (initialRabbits < MID_HIGH_RABBITS_T1) {
+            return 8;
+        } else if (initialRabbits < HIGH_RABBITS_T1) {
+            return 7;
+        } else {
+            return 5;
+        }
     }
 }
+
+// Fox Birth
+int calculateFoxKits(int initialRabbits, int initialFoxes) {
+    if (initialRabbits < LOW_RABBITS_FOX) {
+        if (initialFoxes < LOW_FOXES) {
+            return 0;
+        } else if (initialFoxes < MID_LOW_FOXES) {
+            return 2;
+        } else if (initialFoxes < MID_HIGH_FOXES) {
+            return 2;
+        } else if (initialFoxes < HIGH_FOXES) {
+            return 1;
+        } else {
+            return 0;
+        }
+    } else if (initialRabbits < MID_RABBITS_FOX) {
+        if (initialFoxes < LOW_FOXES) {
+            return 0;
+        } else if (initialFoxes < MID_LOW_FOXES) {
+            return 3;
+        } else if (initialFoxes < MID_HIGH_FOXES) {
+            return 3;
+        } else if (initialFoxes < HIGH_FOXES) {
+            return 2;
+        } else {
+            return 1;
+        }
+    } else if (initialRabbits < HIGH_RABBITS_FOX) {
+        if (initialFoxes < LOW_FOXES) {
+            return 0;
+        } else if (initialFoxes < MID_LOW_FOXES) {
+            return 4;
+        } else if (initialFoxes < MID_HIGH_FOXES) {
+            return 3;
+        } else if (initialFoxes < HIGH_FOXES) {
+            return 3;
+        } else {
+            return 2;
+        }
+    } else {
+        if (initialFoxes < LOW_FOXES) {
+            return 0;
+        } else if (initialFoxes < MID_LOW_FOXES) {
+            return 5;
+        } else if (initialFoxes < MID_HIGH_FOXES) {
+            return 4;
+        } else if (initialFoxes < HIGH_FOXES) {
+            return 3;
+        } else {
+            return 3;
+        }
+    }
+}
+
+// Rabbit Deaths
+void simulateRabbitDeaths()
+{
+    for (int i = 0; i < GRID_SIZE_X; i++)
+    {
+        for (int j = 0; j < GRID_SIZE_Y; j++)
+        {
+            int totalDeaths = 0;
+            int randomNumber = rand() % 100 + 1;
+            if (randomNumber <= 10)
+            { 
+                totalDeaths++;
+            }
+            if (island[i][j].vegetation < LOW_VEGETATION_LEVEL)
+            {
+                totalDeaths += 3;
+            }
+            island[i][j].rabbits -= totalDeaths;
+            if (island[i][j].rabbits < 0)
+            {
+                island[i][j].rabbits = 0;
+            }
+        }
+    }
+}
+
+// Fox Deaths
+void simulateFoxDeaths()
+{
+    for (int i = 0; i < GRID_SIZE_X; i++)
+    {
+        for (int j = 0; j < GRID_SIZE_Y; j++)
+        {
+            double deathChance = calculateFoxDeathChance(island[i][j].foxes);
+            double randomNumber = (double)rand() / RAND_MAX;
+            if (randomNumber < deathChance)
+            {
+                island[i][j].foxes--;
+                if (island[i][j].foxes < 0)
+                {
+                    island[i][j].foxes = 0;
+                }
+            }
+        }
+    }
+}
+
+double calculateFoxDeathChance(int initialFoxes)
+{
+    if (initialFoxes < LOW_FOXES)
+    {
+        return 0.1;
+    }
+    else if (initialFoxes < MID_LOW_FOXES)
+    {
+        return 0.2;
+    }
+    else if (initialFoxes < MID_HIGH_FOXES)
+    {
+        return 0.3;
+    }
+    else
+    {
+        return 0.4;
+    }
+}
+
 
 void reproductionEvent() {
     // Loop through each square in the island
@@ -125,24 +275,6 @@ void reproductionEvent() {
             island[i][j].rabbits += babyRabbits;
         }
     }
-}
-
-
-// Function to determine the number of fox kits born based on Table 2
-int calculateFoxKits(int initialRabbits, int initialFoxes) {
-    if (initialRabbits < LOW_RABBITS_T2) {
-        return 0;
-    } else if (initialRabbits < MID_LOW_RABBITS_T2) {
-        if (initialFoxes >= LOW_FOXES && initialFoxes < MID_LOW_FOXES) {
-            return 2;
-        }
-    } else if (initialRabbits < MID_HIGH_RABBITS_T2) {
-        // Implement logic for mid-range rabbits
-    } else if (initialRabbits < HIGH_RABBITS_T2) {
-        // Implement logic for high-range rabbits
-    }
-
-    return 0; // Default case if no fox kits are born
 }
 
 
@@ -169,6 +301,19 @@ int calculateRabbitLifespan(double vegetationLevel) {
         return 12; // Lifespan is 12 months
     } else {
         return 18; // Lifespan is 18 months
+    }
+}
+
+// Function to determine the chance of a fox dying
+double calculateFoxDeathChance(int initialFoxes) {
+    if (initialFoxes < LOW_FOXES) {
+        return 0.1; // 10% chance of dying
+    } else if (initialFoxes < MID_LOW_FOXES) {
+        return 0.2; // 20% chance of dying
+    } else if (initialFoxes < MID_HIGH_FOXES) {
+        return 0.3; // 30% chance of dying
+    } else {
+        return 0.4; // 40% chance of dying
     }
 }
 
