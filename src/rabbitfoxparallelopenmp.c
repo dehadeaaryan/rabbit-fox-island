@@ -11,6 +11,8 @@ typedef struct {
 
 IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y];
 
+int ages[INITIAL_RABBITS] = {0};
+
 void initializeIsland() {
     for (int i = 0; i < GRID_SIZE_X; i++) {
         for (int j = 0; j < GRID_SIZE_Y; j++) {
