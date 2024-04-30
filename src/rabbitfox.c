@@ -223,6 +223,20 @@ void simulateRabbitDeaths()
     }
 }
 
+// Function to determine the chance of a fox dying
+double calculateFoxDeathChance(int initialFoxes) {
+    if (initialFoxes < LOW_FOXES) {
+        return 0.1; // 10% chance of dying
+    } else if (initialFoxes < MID_LOW_FOXES) {
+        return 0.2; // 20% chance of dying
+    } else if (initialFoxes < MID_HIGH_FOXES) {
+        return 0.3; // 30% chance of dying
+    } else {
+        return 0.4; // 40% chance of dying
+    }
+}
+
+
 // Fox Deaths
 void simulateFoxDeaths()
 {
@@ -281,19 +295,6 @@ int calculateRabbitLifespan(double vegetationLevel) {
         return 12; // Lifespan is 12 months
     } else {
         return 18; // Lifespan is 18 months
-    }
-}
-
-// Function to determine the chance of a fox dying
-double calculateFoxDeathChance(int initialFoxes) {
-    if (initialFoxes < LOW_FOXES) {
-        return 0.1; // 10% chance of dying
-    } else if (initialFoxes < MID_LOW_FOXES) {
-        return 0.2; // 20% chance of dying
-    } else if (initialFoxes < MID_HIGH_FOXES) {
-        return 0.3; // 30% chance of dying
-    } else {
-        return 0.4; // 40% chance of dying
     }
 }
 
