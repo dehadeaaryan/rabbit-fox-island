@@ -62,9 +62,9 @@ int main() {
 
     int choice;
     printf("Choose a case to run:\n");
-    printf("1. Case 1\n");
-    printf("2. Case 2\n");
-    printf("3. Case 3\n");
+    printf("1. Case 1: Uniformly, there are two foxes and 100 rabbits per square initially; the vegetation level is 1.0 everywhere.\n");
+    printf("2. Case 2: There are 20 foxes in one corner square and none elsewhere; there are 10 rabbits in every square except in the corner square diagonally opposte the foxes, and it contains 800 rabbits; the vegetation level is 0.3 everywhere. \n");
+    printf("3. Case 3: There are no foxes on the island, but there are two rabbits in each square; the initial vegetation level is 0.5 everywhere.\n");
     printf("Enter your choice: ");
     scanf("%d", &choice);
 
