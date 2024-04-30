@@ -4,7 +4,7 @@
 
 #define GRID_SIZE_X 8 
 #define GRID_SIZE_Y 8 
-#define YEARS_TO_SIMULATE 100
+#define MONTH_DAYS 30
 
 // Define initial conditions
 #define INITIAL_RABBITS 10
@@ -12,9 +12,10 @@
 #define INITIAL_VEGETATION 0.5
 
 // Define constants for ranges of vegetation levels and initial number of rabbits
-#define LOW_VEGETATION 0.2
-#define MID_VEGETATION 0.5
-#define HIGH_VEGETATION 0.8
+#define LOW_VEGETATION_LEVEL 0.1
+#define MID_LOW_VEGETATION_LEVEL 0.15
+#define MID_HIGH_VEGETATION_LEVEL 0.25
+#define HIGH_VEGETATION_LEVEL 0.35
 
 #define LOW_RABBITS_T1 2
 #define MID_LOW_RABBITS_T1 201
@@ -30,70 +31,65 @@
 #define MID_HIGH_FOXES 51
 #define HIGH_FOXES 100
 
-// Define constants for ranges of vegetation levels
-#define LOW_VEGETATION_LEVEL 0.1
-#define MID_LOW_VEGETATION_LEVEL 0.15
-#define MID_HIGH_VEGETATION_LEVEL 0.25
-#define HIGH_VEGETATION_LEVEL 0.35
+// Define functions
+void initializeIsland();
+void visualizeIsland();
+int calculateBabyRabbits(double vegetation, int initialRabbits);
+int calculateFoxKits(int initialRabbits, int initialFoxes);
+void simulateRabbitDeaths();
+double calculateFoxDeathChance(int initialFoxes);
+void simulateFoxDeaths();
+void reproductionEvent();
+void foxReproductionEvent();
+int calculateRabbitLifespan(double vegetationLevel);
+void simulateRabbitLifespan();
+void simulateIsland(int months);
 
-typedef struct 
-{
+// Island square structure
+typedef struct {
     int rabbits;
     int foxes;
     double vegetation;
-    int rabbitLifespan; // Added to store the lifespan of rabbits
+    int rabbitLifespan;
 } IslandSquare;
 
-//Initializing the island grid (64 boxes)
+// Island grid
 IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y];
+
+int main() {
+    srand(time(NULL)); // Seed the random number generator
+    initializeIsland();
+    visualizeIsland();
+    simulateIsland(1); // Simulate the island for one month
+    return 0;
+}
 
 // Function to initialize the island with initial population values and vegetation levels
 void initializeIsland() {
-    int i, j;
-    for (i = 0; i < GRID_SIZE_X; i++) {
-        for (j = 0; j < GRID_SIZE_Y; j++) {
-            // Initialize rabbits, foxes, and vegetation for each square
+    for (int i = 0; i < GRID_SIZE_X; i++) {
+        for (int j = 0; j < GRID_SIZE_Y; j++) {
             island[i][j].rabbits = INITIAL_RABBITS;
             island[i][j].foxes = INITIAL_FOXES;
             island[i][j].vegetation = INITIAL_VEGETATION;
-            
-            // Calculate the lifespan of rabbits based on the initial vegetation level
-            if (island[i][j].vegetation >= LOW_VEGETATION_LEVEL && island[i][j].vegetation < MID_LOW_VEGETATION_LEVEL) {
-                island[i][j].rabbitLifespan = 3; // Lifespan is 3 months
-            } else if (island[i][j].vegetation >= MID_LOW_VEGETATION_LEVEL && island[i][j].vegetation < MID_HIGH_VEGETATION_LEVEL) {
-                island[i][j].rabbitLifespan = 6; // Lifespan is 6 months
-            } else if (island[i][j].vegetation >= MID_HIGH_VEGETATION_LEVEL && island[i][j].vegetation < HIGH_VEGETATION_LEVEL) {
-                island[i][j].rabbitLifespan = 12; // Lifespan is 12 months
-            } else {
-                island[i][j].rabbitLifespan = 18; // Lifespan is 18 months
-            }
+            island[i][j].rabbitLifespan = calculateRabbitLifespan(INITIAL_VEGETATION);
         }
     }
 }
 
 // Function to visualize the island grid
 void visualizeIsland() {
-    int i, j;
-    for (i = 0; i < GRID_SIZE_X; i++) {
-        for (j = 0; j < GRID_SIZE_Y; j++) {
-            if (island[i][j].foxes > 0) {
-                printf("F");
-            } else if (island[i][j].vegetation > 0.5) {
-                printf("#");
-            } else if (island[i][j].rabbits > 0) {
-                printf("R");
-            } else {
-                printf(".");
-            }
-            printf(" ");
+    for (int i = 0; i < GRID_SIZE_X; i++) {
+        for (int j = 0; j < GRID_SIZE_Y; j++) {
+            printf("F%dR%d ", island[i][j].foxes, island[i][j].rabbits);
         }
         printf("\n");
     }
 }
 
+
 // Rabbit birth
 int calculateBabyRabbits(double vegetation, int initialRabbits) {
-    if (vegetation < LOW_VEGETATION) {
+    if (vegetation < LOW_VEGETATION_LEVEL) {
         if (initialRabbits < LOW_RABBITS_T1) {
             return 0;
         } else if (initialRabbits < MID_LOW_RABBITS_T1) {
@@ -105,7 +101,7 @@ int calculateBabyRabbits(double vegetation, int initialRabbits) {
         } else {
             return 2;
         }
-    } else if (vegetation < MID_VEGETATION) {
+    } else if (vegetation < MID_LOW_VEGETATION_LEVEL) {
         if (initialRabbits < LOW_RABBITS_T1) {
             return 0;
         } else if (initialRabbits < MID_LOW_RABBITS_T1) {
@@ -117,7 +113,7 @@ int calculateBabyRabbits(double vegetation, int initialRabbits) {
         } else {
             return 3;
         }
-    } else if (vegetation < HIGH_VEGETATION) {
+    } else if (vegetation < HIGH_VEGETATION_LEVEL) {
         if (initialRabbits < LOW_RABBITS_T1) {
             return 0;
         } else if (initialRabbits < MID_LOW_RABBITS_T1) {
@@ -244,14 +240,62 @@ void simulateFoxDeaths()
     {
         for (int j = 0; j < GRID_SIZE_Y; j++)
         {
-            double deathChance = calculateFoxDeathChance(island[i][j].foxes);
-            double randomNumber = (double)rand() / RAND_MAX;
-            if (randomNumber < deathChance)
+            // Calculate the chance of a fox dying due to natural causes
+            double naturalDeathChance = 0.1; // 10% chance of natural death
+
+            // Calculate the chance of a fox eating a rabbit based on vegetation level and rabbit availability
+            double eatRabbitChance;
+            if (island[i][j].vegetation < 0.6 && island[i][j].rabbits >= 4)
             {
+                eatRabbitChance = 4.0 / 7.0;
+            }
+            else if (island[i][j].rabbits >= 2)
+            {
+                eatRabbitChance = 2.0 / 7.0;
+            }
+            else
+            {
+                eatRabbitChance = 0.0;
+            }
+
+            // Generate a random number to determine if a fox dies due to natural causes
+            double naturalDeathRandom = (double)rand() / RAND_MAX;
+            if (naturalDeathRandom < naturalDeathChance)
+            {
+                // Fox dies due to natural causes
                 island[i][j].foxes--;
                 if (island[i][j].foxes < 0)
                 {
                     island[i][j].foxes = 0;
+                }
+            }
+
+            // Generate a random number to determine if a fox dies due to lack of food
+            if (island[i][j].foxes > 0 && eatRabbitChance > 0)
+            {
+                double eatRabbitRandom = (double)rand() / RAND_MAX;
+                if (eatRabbitRandom < eatRabbitChance)
+                {
+                    // Fox eats a rabbit
+                    island[i][j].rabbits--;
+                    if (island[i][j].rabbits < 0)
+                    {
+                        island[i][j].rabbits = 0;
+                    }
+                }
+                else
+                {
+                    // Fox doesn't eat a rabbit, check if it dies due to lack of food
+                    double starvationDeathRandom = (double)rand() / RAND_MAX;
+                    if (starvationDeathRandom < 0.1) // 10% chance of starvation death
+                    {
+                        // Fox dies due to starvation
+                        island[i][j].foxes--;
+                        if (island[i][j].foxes < 0)
+                        {
+                            island[i][j].foxes = 0;
+                        }
+                    }
                 }
             }
         }
@@ -309,48 +353,22 @@ void simulateRabbitLifespan() {
     }
 }
 
-// Function to simulate the island for a given number of years
-void simulateIsland(int years)
-{
-    // Loop over each day for the specified number of years
-    for (int year = 0; year < years; year++)
-    {
-        // Print the year number
-        printf("\nYear %d:\n", year + 1);
-
-        // Simulate each day in the current year
-        for (int day = 0; day < 365; day++)
-        {
-            // Check if it's a birthing day for rabbits (every nine weeks)
-            if ((day % (7 * 9)) == 0)
-            {
-                // Call function to simulate birthing events for rabbits
+// Simulation function
+void simulateIsland(int months) {
+    for (int month = 0; month < months; month++) {
+        printf("\nMonth %d:\n", month + 1);
+        for (int day = 0; day < MONTH_DAYS * months; day++) {
+            if ((day % (7 * 9)) == 0) {
                 reproductionEvent();
             }
-
-            // Check if it's a birthing day for foxes (every six months)
-            if ((day % (30 * 6)) == 0)
-            {
-                // Call function to simulate birthing events for foxes
+            if ((day % (30 * 6)) == 0) {
                 foxReproductionEvent();
             }
-
-            // Print visualized island after each day's simulation
+            simulateRabbitDeaths();
+            simulateFoxDeaths();
+            simulateRabbitLifespan();
             printf("Day %d:\n", day + 1);
             visualizeIsland();
         }
     }
-}
-
-int main()
-{
-    srand(time(NULL)); // Seed the random number generator
-
-    initializeIsland();
-    visualizeIsland();
-
-    // Simulate the island for the specified number of years
-    simulateIsland(YEARS_TO_SIMULATE);
-
-    return 0;
 }
