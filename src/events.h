@@ -4,8 +4,13 @@
 #include "constants.h"
 #include "structs.h"
 
+#include <stdlib.h>
+#include <time.h>
+#include <stdio.h>
+
 int caluclateRabbitLitterSize(double vegetation, int initialRabbits);
 int calculateFoxLitterSize(int initialRabbits, int initialFoxes);
-void simulateFoxDeaths(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y]);
+int determineFoxEat(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], Position foxPosition);
+void simulateRabbitDeath(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], int *ages);
 
 #endif

@@ -192,24 +192,54 @@ int calculateFoxLitterSize(int initialRabbits, int initialFoxes)
     }
 }
 
-void simulateFoxDeaths(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y])
+int determineFoxEat(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], Position foxPosition)
 {
-    for (int i = 0; i < GRID_SIZE_X; i++)
-    {
-        for (int j = 0; j < GRID_SIZE_Y; j++)
-        {
-            IslandSquare square = island[i][j];
-            
-            double deathChance = calculateFoxDeathChance(island[i][j].foxes);
-            double randomNumber = (double)rand() / RAND_MAX;
-            if (randomNumber < deathChance)
-            {
-                island[i][j].foxes--;
-                if (island[i][j].foxes < 0)
-                {
-                    island[i][j].foxes = 0;
-                }
+    int x = foxPosition.x;
+    int y = foxPosition.y;
+
+    int eats = 0;
+
+    IslandSquare square = island[x][y];
+
+    if (square.rabbits > 0) {
+        eats = (rand() % 7) + 1;
+        if (square.vegetation < 0.6) {
+            if (eats <= 4) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } else {
+            if (eats <= 2) {
+                return 1;
+            } else {
+                return 0;
             }
         }
     }
+}
+
+void simulateRabbitDeath(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], int *ages)
+{
+    for (int x = 0; x < GRID_SIZE_X; x++)
+    {
+        for (int y = 0; y < GRID_SIZE_Y; y++)
+        {
+            IslandSquare square = island[x][y];
+            island[x][y].vegetation -= square.rabbits * 0.001;
+            if (island[x][y].vegetation < 0)
+            {
+                int deadRabbits = (int)(-island[x][y].vegetation / 0.001);
+                island[x][y].rabbits -= deadRabbits;
+                island[x][y].vegetation = 0;
+            }
+        }
+    }
+}
+
+// tester
+int main() {
+    IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y];
+    int ages[INITIAL_RABBITS] = {0};
+    simulateRabbitDeath(island, ages);
 }
