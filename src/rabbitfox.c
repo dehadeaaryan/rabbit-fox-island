@@ -244,27 +244,6 @@ void simulateFoxDeaths()
     }
 }
 
-double calculateFoxDeathChance(int initialFoxes)
-{
-    if (initialFoxes < LOW_FOXES)
-    {
-        return 0.1;
-    }
-    else if (initialFoxes < MID_LOW_FOXES)
-    {
-        return 0.2;
-    }
-    else if (initialFoxes < MID_HIGH_FOXES)
-    {
-        return 0.3;
-    }
-    else
-    {
-        return 0.4;
-    }
-}
-
-
 void reproductionEvent() {
     // Loop through each square in the island
     for (int i = 0; i < GRID_SIZE_X; i++) {
