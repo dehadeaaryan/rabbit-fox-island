@@ -59,24 +59,72 @@ IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y];
 
 int main() {
     srand(time(NULL)); // Seed the random number generator
-    initializeIsland();
+
+    int choice;
+    printf("Choose a case to run:\n");
+    printf("1. Case 1\n");
+    printf("2. Case 2\n");
+    printf("3. Case 3\n");
+    printf("Enter your choice: ");
+    scanf("%d", &choice);
+
+    initializeIsland(choice);
+
     visualizeIsland();
     simulateIsland(1); // Simulate the island for one month
     return 0;
 }
 
+
 // Function to initialize the island with initial population values and vegetation levels
-void initializeIsland() {
+// Function to initialize the island with initial population values and vegetation levels
+void initializeIsland(int caseNumber) {
+    int success = 1; // Flag to indicate success
+
     #pragma omp parallel for collapse(2)
     for (int i = 0; i < GRID_SIZE_X; i++) {
         for (int j = 0; j < GRID_SIZE_Y; j++) {
-            island[i][j].rabbits = INITIAL_RABBITS;
-            island[i][j].foxes = INITIAL_FOXES;
-            island[i][j].vegetation = INITIAL_VEGETATION;
-            island[i][j].rabbitLifespan = calculateRabbitLifespan(INITIAL_VEGETATION);
+            switch (caseNumber) {
+                case 1:
+                    island[i][j].rabbits = 100;
+                    island[i][j].foxes = 2;
+                    island[i][j].vegetation = 1.0;
+                    island[i][j].rabbitLifespan = calculateRabbitLifespan(1.0);
+                    break;
+                case 2:
+                    if (i == GRID_SIZE_X - 1 && j == GRID_SIZE_Y - 1) {
+                        island[i][j].rabbits = 800;
+                    } else {
+                        island[i][j].rabbits = 10;
+                    }
+                    if (i == GRID_SIZE_X - 1 && j == GRID_SIZE_Y - 1) {
+                        island[i][j].foxes = 20;
+                    } else {
+                        island[i][j].foxes = 0;
+                    }
+                    island[i][j].vegetation = 0.3;
+                    island[i][j].rabbitLifespan = calculateRabbitLifespan(0.3);
+                    break;
+                case 3:
+                    island[i][j].rabbits = 2;
+                    island[i][j].foxes = 0;
+                    island[i][j].vegetation = 0.5;
+                    island[i][j].rabbitLifespan = calculateRabbitLifespan(0.5);
+                    break;
+                default:
+                    printf("Invalid case number.\n");
+                    success = 0; // Indicate failure
+                    break;
+            }
         }
     }
+
+    if (!success) {
+        return; // Return outside the parallel region
+    }
 }
+
+
 
 // Function to visualize the island grid
 void visualizeIsland() {
@@ -91,7 +139,7 @@ void visualizeIsland() {
 
         for (int i = start; i < end; i++) {
             for (int j = 0; j < GRID_SIZE_Y; j++) {
-                printf("F%dR%d ", island[i][j].foxes, island[i][j].rabbits);
+                printf("V%.2fF%dR%d ", island[i][j].vegetation,island[i][j].foxes, island[i][j].rabbits);
             }
             printf("\n");
         }
