@@ -4,6 +4,7 @@
 
 #define GRID_SIZE_X 8 
 #define GRID_SIZE_Y 8 
+#define YEARS_TO_SIMULATE 100
 
 // Define initial conditions
 #define INITIAL_RABBITS 10
@@ -328,20 +329,48 @@ void simulateRabbitLifespan() {
     }
 }
 
-int main() {
+// Function to simulate the island for a given number of years
+void simulateIsland(int years)
+{
+    // Loop over each day for the specified number of years
+    for (int year = 0; year < years; year++)
+    {
+        // Print the year number
+        printf("\nYear %d:\n", year + 1);
+
+        // Simulate each day in the current year
+        for (int day = 0; day < 365; day++)
+        {
+            // Check if it's a birthing day for rabbits (every nine weeks)
+            if ((day % (7 * 9)) == 0)
+            {
+                // Call function to simulate birthing events for rabbits
+                reproductionEvent();
+            }
+
+            // Check if it's a birthing day for foxes (every six months)
+            if ((day % (30 * 6)) == 0)
+            {
+                // Call function to simulate birthing events for foxes
+                foxReproductionEvent();
+            }
+
+            // Print visualized island after each day's simulation
+            printf("Day %d:\n", day + 1);
+            visualizeIsland();
+        }
+    }
+}
+
+int main()
+{
+    srand(time(NULL)); // Seed the random number generator
+
     initializeIsland();
     visualizeIsland();
-    
-    // Simulate reproduction events for rabbits and foxes
-    reproductionEvent();
-    foxReproductionEvent();
-    
-    // Print visualized island after simulation
-    printf("\nAfter reproduction events:\n");
-    visualizeIsland();
-    
-    // Simulate rabbit lifespan
-    simulateRabbitLifespan();
-    
+
+    // Simulate the island for the specified number of years
+    simulateIsland(YEARS_TO_SIMULATE);
+
     return 0;
 }
