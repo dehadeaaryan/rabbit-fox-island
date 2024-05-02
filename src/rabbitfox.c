@@ -132,7 +132,7 @@ int success = 1;
 void visualizeIsland() {
     for (int i = 0; i < GRID_SIZE_X; i++) {
         for (int j = 0; j < GRID_SIZE_Y; j++) {
-            printf("F%dR%d ", island[i][j].foxes, island[i][j].rabbits);
+            printf("V%.2f-F%d-R%d ", island[i][j].vegetation, island[i][j].foxes, island[i][j].rabbits);
         }
         printf("\n");
     }
@@ -461,7 +461,6 @@ void simulateMigration() {
 void migrateRabbits(int x, int y) {
     int tempRabbits[GRID_SIZE_X][GRID_SIZE_Y];
 
-     // Initialize the temporary grid with the current rabbit population
     for (int i = 0; i < GRID_SIZE_X; i++) {
         for (int j = 0; j < GRID_SIZE_Y; j++) {
             tempRabbits[i][j] = island[i][j].rabbits;
@@ -470,23 +469,14 @@ void migrateRabbits(int x, int y) {
     // Iterate over each neighboring square
     for (int dx = -1; dx <= 1; dx++) {
         for (int dy = -1; dy <= 1; dy++) {
-            // Skip the current square and squares at the water's edge
             if ((dx == 0 && dy == 0) || isWaterEdge(x + dx, y + dy)) {
                 continue;
             }
-
-            // Randomly choose the number of rabbits to migrate (0 to current population)
             int migrationCount = rand() % (island[x][y].rabbits + 1);
-
-            // Update the rabbit population in the neighboring square
             tempRabbits[x + dx][y + dy] += migrationCount;
-
-            // Reduce the rabbit population in the current square
             tempRabbits[x][y] -= migrationCount;
         }
     }
-
-    // Update the island grid with the new rabbit population
     for (int i = 0; i < GRID_SIZE_X; i++) {
         for (int j = 0; j < GRID_SIZE_Y; j++) {
             island[i][j].rabbits = tempRabbits[i][j];
@@ -495,10 +485,8 @@ void migrateRabbits(int x, int y) {
 }
 
 void migrateFoxes(int x, int y) {
-    // Create a temporary grid to store the updated fox population
     int tempFoxes[GRID_SIZE_X][GRID_SIZE_Y];
 
-    // Initialize the temporary grid with the current fox population
     for (int i = 0; i < GRID_SIZE_X; i++) {
         for (int j = 0; j < GRID_SIZE_Y; j++) {
             tempFoxes[i][j] = island[i][j].foxes;
@@ -508,23 +496,14 @@ void migrateFoxes(int x, int y) {
     // Iterate over each neighboring square
     for (int dx = -1; dx <= 1; dx++) {
         for (int dy = -1; dy <= 1; dy++) {
-            // Skip the current square and squares at the water's edge
             if ((dx == 0 && dy == 0) || isWaterEdge(x + dx, y + dy)) {
                 continue;
             }
-
-            // Randomly choose the number of foxes to migrate (0 to current population)
             int migrationCount = rand() % (island[x][y].foxes + 1);
-
-            // Update the fox population in the neighboring square
             tempFoxes[x + dx][y + dy] += migrationCount;
-
-            // Reduce the fox population in the current square
             tempFoxes[x][y] -= migrationCount;
         }
     }
-
-    // Update the island grid with the new fox population
     for (int i = 0; i < GRID_SIZE_X; i++) {
         for (int j = 0; j < GRID_SIZE_Y; j++) {
             island[i][j].foxes = tempFoxes[i][j];
