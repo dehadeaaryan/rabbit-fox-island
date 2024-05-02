@@ -45,6 +45,10 @@ int calculateRabbitLifespan(double vegetationLevel);
 void simulateRabbitLifespan();
 void simulateIsland(int months);
 void updateVegetation();
+void simulateMigration();
+void migrateRabbits(int x, int y);
+void migrateFoxes(int x, int y);
+int isWaterEdge(int x, int y);
 
 // Island square structure
 typedef struct {
@@ -72,11 +76,15 @@ int main() {
 
     visualizeIsland();
     simulateIsland(1); // Simulate the island for one month
+
+    // Simulate migration
+    simulateMigration();
+
     return 0;
 }
 
 // Function to initialize the island with initial population values and vegetation levels
-void initializeIsland(caseNumber) {
+void initializeIsland(int caseNumber) {
 int success = 1;
  for (int i = 0; i < GRID_SIZE_X; i++) {
         for (int j = 0; j < GRID_SIZE_Y; j++) {
@@ -434,5 +442,100 @@ void updateVegetation() {
                 island[i][j].vegetation = vegetationChange;
             }
         }
+    }
+}
+
+// Migration Logic and Function
+void simulateMigration() {
+    for (int i = 0; i < GRID_SIZE_X; i++) {
+        for (int j = 0; j < GRID_SIZE_Y; j++) {
+            if (isWaterEdge(i, j)) {
+                continue;
+            }
+            migrateRabbits(i, j);
+            migrateFoxes(i, j);
+        }   
+    }  
+}
+
+void migrateRabbits(int x, int y) {
+    int tempRabbits[GRID_SIZE_X][GRID_SIZE_Y];
+
+     // Initialize the temporary grid with the current rabbit population
+    for (int i = 0; i < GRID_SIZE_X; i++) {
+        for (int j = 0; j < GRID_SIZE_Y; j++) {
+            tempRabbits[i][j] = island[i][j].rabbits;
+        }
+    }
+    // Iterate over each neighboring square
+    for (int dx = -1; dx <= 1; dx++) {
+        for (int dy = -1; dy <= 1; dy++) {
+            // Skip the current square and squares at the water's edge
+            if ((dx == 0 && dy == 0) || isWaterEdge(x + dx, y + dy)) {
+                continue;
+            }
+
+            // Randomly choose the number of rabbits to migrate (0 to current population)
+            int migrationCount = rand() % (island[x][y].rabbits + 1);
+
+            // Update the rabbit population in the neighboring square
+            tempRabbits[x + dx][y + dy] += migrationCount;
+
+            // Reduce the rabbit population in the current square
+            tempRabbits[x][y] -= migrationCount;
+        }
+    }
+
+    // Update the island grid with the new rabbit population
+    for (int i = 0; i < GRID_SIZE_X; i++) {
+        for (int j = 0; j < GRID_SIZE_Y; j++) {
+            island[i][j].rabbits = tempRabbits[i][j];
+        }
+    }
+}
+
+void migrateFoxes(int x, int y) {
+    // Create a temporary grid to store the updated fox population
+    int tempFoxes[GRID_SIZE_X][GRID_SIZE_Y];
+
+    // Initialize the temporary grid with the current fox population
+    for (int i = 0; i < GRID_SIZE_X; i++) {
+        for (int j = 0; j < GRID_SIZE_Y; j++) {
+            tempFoxes[i][j] = island[i][j].foxes;
+        }
+    }
+
+    // Iterate over each neighboring square
+    for (int dx = -1; dx <= 1; dx++) {
+        for (int dy = -1; dy <= 1; dy++) {
+            // Skip the current square and squares at the water's edge
+            if ((dx == 0 && dy == 0) || isWaterEdge(x + dx, y + dy)) {
+                continue;
+            }
+
+            // Randomly choose the number of foxes to migrate (0 to current population)
+            int migrationCount = rand() % (island[x][y].foxes + 1);
+
+            // Update the fox population in the neighboring square
+            tempFoxes[x + dx][y + dy] += migrationCount;
+
+            // Reduce the fox population in the current square
+            tempFoxes[x][y] -= migrationCount;
+        }
+    }
+
+    // Update the island grid with the new fox population
+    for (int i = 0; i < GRID_SIZE_X; i++) {
+        for (int j = 0; j < GRID_SIZE_Y; j++) {
+            island[i][j].foxes = tempFoxes[i][j];
+        }
+    }
+}
+
+int isWaterEdge(int x, int y) {
+    if (x == 0 || x == GRID_SIZE_X - 1 || y == 0 || y == GRID_SIZE_Y - 1) {
+        return 1;
+    } else {
+        return 0;
     }
 }

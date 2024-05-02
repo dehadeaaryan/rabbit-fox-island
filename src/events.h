@@ -12,5 +12,6 @@ int caluclateRabbitLitterSize(double vegetation, int initialRabbits);
 int calculateFoxLitterSize(int initialRabbits, int initialFoxes);
 int determineFoxEat(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], Position foxPosition);
 void simulateRabbitDeath(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], int *ages);
+void updateVegetation(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y]);
 
 #endif
