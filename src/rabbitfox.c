@@ -75,7 +75,8 @@ int main() {
 }
 
 // Function to initialize the island with initial population values and vegetation levels
-void initializeIsland() {
+void initializeIsland(caseNumber) {
+int success = 1;
  for (int i = 0; i < GRID_SIZE_X; i++) {
         for (int j = 0; j < GRID_SIZE_Y; j++) {
             switch (caseNumber) {
