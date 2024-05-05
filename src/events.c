@@ -98,11 +98,13 @@ int caluclateRabbitLitterSize(double vegetation, int initialRabbits)
 
 void simulateRabbitReproduction(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y])
 {
+    int previousRabbitCount = 0;
     for (int i = 0; i < GRID_SIZE_X; i++)
     {
         for (int j = 0; j < GRID_SIZE_Y; j++)
         {
-            for (int k = 0; k < island[i][j].rabbits / 2; k++)
+            previousRabbitCount += island[i][j].rabbits;
+            for (int k = 0; k < previousRabbitCount / 2; k++)
             {
                 int babyRabbits = caluclateRabbitLitterSize(island[i][j].vegetation, island[i][j].rabbits);
                 island[i][j].rabbits += babyRabbits;
@@ -209,11 +211,13 @@ int calculateFoxLitterSize(int initialRabbits, int initialFoxes)
 
 void simulateFoxReproduction(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y])
 {
+    int previousFoxCount = 0;
     for (int i = 0; i < GRID_SIZE_X; i++)
     {
         for (int j = 0; j < GRID_SIZE_Y; j++)
         {
-            for (int k = 0; k < island[i][j].foxes / 2; k++)
+            previousFoxCount += island[i][j].foxes;
+            for (int k = 0; k < previousFoxCount / 2; k++)
             {
                 int foxKits = calculateFoxLitterSize(island[i][j].rabbits, island[i][j].foxes);
                 island[i][j].foxes += foxKits;
@@ -247,6 +251,7 @@ int determineFoxEat(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], Position foxP
             }
         }
     }
+    return 0;
 }
 
 void simulateRabbitDeaths(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], int rabbitAgeSum)
@@ -394,6 +399,7 @@ void simulateMigration(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y]) {
 }
 
 void simulateFoxDeaths(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], int foxAgeSum) {
+    int totalFoxes = 0;
     for (int i = 0; i < GRID_SIZE_X; i++) {
         for (int j = 0; j < GRID_SIZE_Y; j++) {
             // Calculate the chance of a fox dying due to natural causes
@@ -404,7 +410,7 @@ void simulateFoxDeaths(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], int foxAge
                 int eatsRabbit = determineFoxEat(island, (Position){i, j});
                 
                 // Generate a random number to determine if a fox dies due to natural causes
-                double naturalDeathRandom = (double)rand() / RAND_MAX;
+                double naturalDeathRandom = (double)rand() / 100;
                 if (naturalDeathRandom < naturalDeathChance) {
                     // Fox dies due to natural causes
                     island[i][j].foxes--;
@@ -423,7 +429,7 @@ void simulateFoxDeaths(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], int foxAge
                         }
                     } else {
                         // Fox doesn't eat a rabbit, check if it dies due to starvation
-                        double starvationDeathRandom = (double)rand() / RAND_MAX;
+                        double starvationDeathRandom = (double)rand() / 100;
                         if (starvationDeathRandom < 0.1) { // 10% chance of starvation death
                             // Fox dies due to starvation
                             island[i][j].foxes--;
@@ -434,14 +440,19 @@ void simulateFoxDeaths(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], int foxAge
                     }
                 }
             }
+            totalFoxes += island[i][j].foxes;
         }
     }
-}
-
-
-// tester
-int main() {
-    IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y];
-    int ages[INITIAL_RABBITS] = {0};
-    simulateRabbitDeath(island, ages);
+    if (foxAgeSum > 0){
+        int foxAgeAverage = foxAgeSum / totalFoxes;
+        for (int i = 0; i < GRID_SIZE_X; i++) {
+            for (int j = 0; j < GRID_SIZE_Y; j++) {
+                IslandSquare square = island[i][j];
+                if (foxAgeAverage > 4) {
+                    int foxesToKill = (int)(square.foxes * 0.1);
+                    island[i][j].foxes -= foxesToKill;
+                }
+            }
+        }
+    }
 }

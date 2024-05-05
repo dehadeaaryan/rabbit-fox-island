@@ -5,8 +5,8 @@
 #include "structs.h"
 #include "events.h"
 
-void initialiseIsland(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y]);
-void visualiseIsland(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y]);
-void simulateIsland(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y]);
+void initializeIsland(int caseNumber);
+void visualizeIsland();
+void simulateIsland(int months);
 
 #endif

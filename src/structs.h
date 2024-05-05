@@ -10,7 +10,6 @@ typedef struct {
     int rabbits;
     int foxes;
     double vegetation;
-    double rabbitLifespan;
 } IslandSquare;
 
 #endif

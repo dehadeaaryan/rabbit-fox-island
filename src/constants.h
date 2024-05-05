@@ -4,8 +4,6 @@
 #define TRUE 1
 #define FALSE 0
 
-#define RAND_MAX 100
-
 #define GRID_SIZE_X 8 
 #define GRID_SIZE_Y 8 
 #define MONTH_DAYS 30

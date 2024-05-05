@@ -35,7 +35,6 @@ int success = 1;
                     island[i][j].rabbits = 100;
                     island[i][j].foxes = 2;
                     island[i][j].vegetation = 1.0;
-                    island[i][j].rabbitLifespan = calculateRabbitLifespan(1.0);
                     break;
                 case 2:
                     if (i == GRID_SIZE_X - 1 && j == GRID_SIZE_Y - 1) {
@@ -49,13 +48,11 @@ int success = 1;
                         island[i][j].foxes = 0;
                     }
                     island[i][j].vegetation = 0.3;
-                    island[i][j].rabbitLifespan = calculateRabbitLifespan(0.3);
                     break;
                 case 3:
                     island[i][j].rabbits = 2;
                     island[i][j].foxes = 0;
                     island[i][j].vegetation = 0.5;
-                    island[i][j].rabbitLifespan = calculateRabbitLifespan(0.5);
                     break;
                 default:
                     printf("Invalid case number.\n");
@@ -74,7 +71,7 @@ int success = 1;
 void visualizeIsland() {
     for (int i = 0; i < GRID_SIZE_X; i++) {
         for (int j = 0; j < GRID_SIZE_Y; j++) {
-            printf("V%.2f-F%d-R%d ", island[i][j].vegetation, island[i][j].foxes, island[i][j].rabbits);
+            printf(" %.2f %d %d ", island[i][j].vegetation, island[i][j].foxes, island[i][j].rabbits);
         }
         printf("\n");
     }
@@ -95,17 +92,16 @@ void simulateIsland(int months) {
         }
         printf("\nMonth %d:\n", month + 1);
         for (int day = 0; day < MONTH_DAYS * months; day++) {
+            printf("Day %d:\n", day + 1);
             if ((day % daysFor9Weeks) == 0) {
                 simulateRabbitReproduction(island);
             }
             if ((day % daysFor6Months) == 0) {
                 simulateFoxReproduction(island);
             }
-
             simulateRabbitDeaths(island, rabbitAgeSum);
             simulateFoxDeaths(island, foxAgeSum);
             updateVegetation(island);
-            printf("Day %d:\n", day + 1);
             visualizeIsland();
         }
         simulateMigration(island);
