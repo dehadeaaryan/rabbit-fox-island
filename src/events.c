@@ -96,6 +96,21 @@ int caluclateRabbitLitterSize(double vegetation, int initialRabbits)
     }
 }
 
+void simulateRabbitReproduction(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y])
+{
+    for (int i = 0; i < GRID_SIZE_X; i++)
+    {
+        for (int j = 0; j < GRID_SIZE_Y; j++)
+        {
+            for (int k = 0; k < island[i][j].rabbits / 2; k++)
+            {
+                int babyRabbits = caluclateRabbitLitterSize(island[i][j].vegetation, island[i][j].rabbits);
+                island[i][j].rabbits += babyRabbits;
+            }
+        }
+    }
+}
+
 int calculateFoxLitterSize(int initialRabbits, int initialFoxes)
 {
     if (initialRabbits < LOW_RABBITS_FOX)
@@ -192,6 +207,21 @@ int calculateFoxLitterSize(int initialRabbits, int initialFoxes)
     }
 }
 
+void simulateFoxReproduction(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y])
+{
+    for (int i = 0; i < GRID_SIZE_X; i++)
+    {
+        for (int j = 0; j < GRID_SIZE_Y; j++)
+        {
+            for (int k = 0; k < island[i][j].foxes / 2; k++)
+            {
+                int foxKits = calculateFoxLitterSize(island[i][j].rabbits, island[i][j].foxes);
+                island[i][j].foxes += foxKits;
+            }
+        }
+    }
+}
+
 int determineFoxEat(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], Position foxPosition)
 {
     int x = foxPosition.x;
@@ -237,7 +267,6 @@ void simulateRabbitDeath(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], int *age
     }
 }
 
-// Vegetation Update function
 void updateVegetation(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y]) {
     for (int i = 0; i < GRID_SIZE_X; i++) {
         for (int j = 0; j < GRID_SIZE_Y; j++) { 
@@ -333,6 +362,74 @@ void simulateMigration(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y]) {
             migrateFoxes(island, position);
         }   
     }  
+}
+
+void simulateFoxDeaths(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y])
+{
+    for (int i = 0; i < GRID_SIZE_X; i++)
+    {
+        for (int j = 0; j < GRID_SIZE_Y; j++)
+        {
+            // Calculate the chance of a fox dying due to natural causes
+            double naturalDeathChance = 0.1; // 10% chance of natural death
+
+            // Calculate the chance of a fox eating a rabbit based on vegetation level and rabbit availability
+            double eatRabbitChance;
+            if (island[i][j].vegetation < 0.6 && island[i][j].rabbits >= 4)
+            {
+                eatRabbitChance = 4.0 / 7.0;
+            }
+            else if (island[i][j].rabbits >= 2)
+            {
+                eatRabbitChance = 2.0 / 7.0;
+            }
+            else
+            {
+                eatRabbitChance = 0.0;
+            }
+
+            // Generate a random number to determine if a fox dies due to natural causes
+            double naturalDeathRandom = (double)rand() / RAND_MAX;
+            if (naturalDeathRandom < naturalDeathChance)
+            {
+                // Fox dies due to natural causes
+                island[i][j].foxes--;
+                if (island[i][j].foxes < 0)
+                {
+                    island[i][j].foxes = 0;
+                }
+            }
+
+            // Generate a random number to determine if a fox dies due to lack of food
+            if (island[i][j].foxes > 0 && eatRabbitChance > 0)
+            {
+                double eatRabbitRandom = (double)rand() / RAND_MAX;
+                if (eatRabbitRandom < eatRabbitChance)
+                {
+                    // Fox eats a rabbit
+                    island[i][j].rabbits--;
+                    if (island[i][j].rabbits < 0)
+                    {
+                        island[i][j].rabbits = 0;
+                    }
+                }
+                else
+                {
+                    // Fox doesn't eat a rabbit, check if it dies due to lack of food
+                    double starvationDeathRandom = (double)rand() / RAND_MAX;
+                    if (starvationDeathRandom < 0.1) // 10% chance of starvation death
+                    {
+                        // Fox dies due to starvation
+                        island[i][j].foxes--;
+                        if (island[i][j].foxes < 0)
+                        {
+                            island[i][j].foxes = 0;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 // tester
