@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include "rabbitFoxIsland.h"
+#include "rabbitfox.h"
 
 // Island grid
 IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y];
@@ -80,36 +80,19 @@ void visualizeIsland() {
     }
 }
 
-
-// Function to determine the lifespan of rabbits based on Table 3
-int calculateRabbitLifespan(double vegetationLevel) {
-    if (vegetationLevel >= LOW_VEGETATION_LEVEL && vegetationLevel < MID_LOW_VEGETATION_LEVEL) {
-        return 3; // Lifespan is 3 months
-    } else if (vegetationLevel >= MID_LOW_VEGETATION_LEVEL && vegetationLevel < MID_HIGH_VEGETATION_LEVEL) {
-        return 6; // Lifespan is 6 months
-    } else if (vegetationLevel >= MID_HIGH_VEGETATION_LEVEL && vegetationLevel < HIGH_VEGETATION_LEVEL) {
-        return 12; // Lifespan is 12 months
-    } else {
-        return 18; // Lifespan is 18 months
-    }
-}
-
-// Usage example in your simulation loop
-void simulateRabbitLifespan() {
-    // Loop through each square in the island
-    for (int i = 0; i < GRID_SIZE_X; i++) {
-        for (int j = 0; j < GRID_SIZE_Y; j++) {
-            // Calculate the lifespan of rabbits based on vegetation level
-            island[i][j].rabbitLifespan = calculateRabbitLifespan(island[i][j].vegetation);
-        }
-    }
-}
-
 // Simulation function
 void simulateIsland(int months) {
     int daysFor9Weeks = 7 * 9;
     int daysFor6Months = 30 * 6;
+    int rabbitAgeSum = 0;
+    int foxAgeSum = 0;
     for (int month = 0; month < months; month++) {
+        for (int i = 0; i < GRID_SIZE_X; i++) {
+            for (int j = 0; j < GRID_SIZE_Y; j++) {
+                rabbitAgeSum += island[i][j].rabbits;
+                foxAgeSum += island[i][j].foxes;
+            }
+        }
         printf("\nMonth %d:\n", month + 1);
         for (int day = 0; day < MONTH_DAYS * months; day++) {
             if ((day % daysFor9Weeks) == 0) {
@@ -118,9 +101,9 @@ void simulateIsland(int months) {
             if ((day % daysFor6Months) == 0) {
                 simulateFoxReproduction(island);
             }
-            simulateRabbitDeaths();
-            simulateFoxDeaths();
-            simulateRabbitLifespan();
+
+            simulateRabbitDeaths(island, rabbitAgeSum);
+            simulateFoxDeaths(island, foxAgeSum);
             updateVegetation(island);
             printf("Day %d:\n", day + 1);
             visualizeIsland();
