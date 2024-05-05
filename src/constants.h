@@ -8,6 +8,7 @@
 
 #define GRID_SIZE_X 8 
 #define GRID_SIZE_Y 8 
+#define MONTH_DAYS 30
 #define YEARS_TO_SIMULATE 100
 
 #define INITIAL_RABBITS 10

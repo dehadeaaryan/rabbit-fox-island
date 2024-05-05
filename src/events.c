@@ -256,6 +256,85 @@ void updateVegetation(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y]) {
     }
 }
 
+int isWaterEdge(Position position) {
+    if (position.x == 0 || position.x == GRID_SIZE_X - 1 || position.y == 0 || position.y == GRID_SIZE_Y - 1) {
+        return 1;
+    }
+    return 0;
+}
+
+void migrateRabbits(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], Position position) {
+    int x = position.x;
+    int y = position.y;
+    int tempRabbits[GRID_SIZE_X][GRID_SIZE_Y];
+
+    for (int i = 0; i < GRID_SIZE_X; i++) {
+        for (int j = 0; j < GRID_SIZE_Y; j++) {
+            tempRabbits[i][j] = island[i][j].rabbits;
+        }
+    }
+    // Iterate over each neighboring square
+    for (int dx = -1; dx <= 1; dx++) {
+        for (int dy = -1; dy <= 1; dy++) {
+            Position newPosition = {x + dx, y + dy};
+            if ((dx == 0 && dy == 0) || isWaterEdge(newPosition)) {
+                continue;
+            }
+            int migrationCount = rand() % (island[x][y].rabbits + 1);
+            tempRabbits[x + dx][y + dy] += migrationCount;
+            tempRabbits[x][y] -= migrationCount;
+        }
+    }
+    for (int i = 0; i < GRID_SIZE_X; i++) {
+        for (int j = 0; j < GRID_SIZE_Y; j++) {
+            island[i][j].rabbits = tempRabbits[i][j];
+        }
+    }
+}
+
+void migrateFoxes(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], Position position) {
+    int x = position.x;
+    int y = position.y;
+    int tempFoxes[GRID_SIZE_X][GRID_SIZE_Y];
+
+    for (int i = 0; i < GRID_SIZE_X; i++) {
+        for (int j = 0; j < GRID_SIZE_Y; j++) {
+            tempFoxes[i][j] = island[i][j].foxes;
+        }
+    }
+
+    // Iterate over each neighboring square
+    for (int dx = -1; dx <= 1; dx++) {
+        for (int dy = -1; dy <= 1; dy++) {
+            Position newPosition = {x + dx, y + dy};
+            if ((dx == 0 && dy == 0) || isWaterEdge(newPosition)) {
+                continue;
+            }
+            int migrationCount = rand() % (island[x][y].foxes + 1);
+            tempFoxes[x + dx][y + dy] += migrationCount;
+            tempFoxes[x][y] -= migrationCount;
+        }
+    }
+    for (int i = 0; i < GRID_SIZE_X; i++) {
+        for (int j = 0; j < GRID_SIZE_Y; j++) {
+            island[i][j].foxes = tempFoxes[i][j];
+        }
+    }
+}
+
+void simulateMigration(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y]) {
+    for (int i = 0; i < GRID_SIZE_X; i++) {
+        for (int j = 0; j < GRID_SIZE_Y; j++) {
+            Position position = {i, j};
+            if (isWaterEdge(position)) {
+                continue;
+            }
+            migrateRabbits(island, position);
+            migrateFoxes(island, position);
+        }   
+    }  
+}
+
 // tester
 int main() {
     IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y];

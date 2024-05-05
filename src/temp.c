@@ -1,7 +1,62 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include "rabbitFoxIsland.h"
+
+#define GRID_SIZE_X 8 
+#define GRID_SIZE_Y 8 
+#define MONTH_DAYS 30
+
+// Define initial conditions
+#define INITIAL_RABBITS 10
+#define INITIAL_FOXES 5
+#define INITIAL_VEGETATION 0.5
+
+// Define constants for ranges of vegetation levels and initial number of rabbits
+#define LOW_VEGETATION_LEVEL 0.1
+#define MID_LOW_VEGETATION_LEVEL 0.15
+#define MID_HIGH_VEGETATION_LEVEL 0.25
+#define HIGH_VEGETATION_LEVEL 0.35
+
+#define LOW_RABBITS_T1 2
+#define MID_LOW_RABBITS_T1 201
+#define MID_HIGH_RABBITS_T1 701
+#define HIGH_RABBITS_T1 5001
+
+#define LOW_RABBITS_FOX 3
+#define MID_RABBITS_FOX 10
+#define HIGH_RABBITS_FOX 40
+
+#define LOW_FOXES 2
+#define MID_LOW_FOXES 11
+#define MID_HIGH_FOXES 51
+#define HIGH_FOXES 100
+
+// Define functions
+void initializeIsland();
+void visualizeIsland();
+int calculateBabyRabbits(double vegetation, int initialRabbits);
+int calculateFoxKits(int initialRabbits, int initialFoxes);
+void simulateRabbitDeaths();
+double calculateFoxDeathChance(int initialFoxes);
+void simulateFoxDeaths();
+void reproductionEvent();
+void foxReproductionEvent();
+int calculateRabbitLifespan(double vegetationLevel);
+void simulateRabbitLifespan();
+void simulateIsland(int months);
+void updateVegetation();
+void simulateMigration();
+void migrateRabbits(int x, int y);
+void migrateFoxes(int x, int y);
+int isWaterEdge(int x, int y);
+
+// Island square structure
+typedef struct {
+    int rabbits;
+    int foxes;
+    double vegetation;
+    int rabbitLifespan;
+} IslandSquare;
 
 // Island grid
 IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y];
