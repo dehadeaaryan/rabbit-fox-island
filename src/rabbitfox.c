@@ -44,6 +44,11 @@ void foxReproductionEvent();
 int calculateRabbitLifespan(double vegetationLevel);
 void simulateRabbitLifespan();
 void simulateIsland(int months);
+void updateVegetation();
+void simulateMigration();
+void migrateRabbits(int x, int y);
+void migrateFoxes(int x, int y);
+int isWaterEdge(int x, int y);
 
 // Island square structure
 typedef struct {
@@ -71,11 +76,15 @@ int main() {
 
     visualizeIsland();
     simulateIsland(1); // Simulate the island for one month
+
+    // Simulate migration
+    simulateMigration();
+
     return 0;
 }
 
 // Function to initialize the island with initial population values and vegetation levels
-void initializeIsland(caseNumber) {
+void initializeIsland(int caseNumber) {
 int success = 1;
  for (int i = 0; i < GRID_SIZE_X; i++) {
         for (int j = 0; j < GRID_SIZE_Y; j++) {
@@ -123,7 +132,7 @@ int success = 1;
 void visualizeIsland() {
     for (int i = 0; i < GRID_SIZE_X; i++) {
         for (int j = 0; j < GRID_SIZE_Y; j++) {
-            printf("F%dR%d ", island[i][j].foxes, island[i][j].rabbits);
+            printf("V%.2f-F%d-R%d ", island[i][j].vegetation, island[i][j].foxes, island[i][j].rabbits);
         }
         printf("\n");
     }
@@ -410,8 +419,102 @@ void simulateIsland(int months) {
             simulateRabbitDeaths();
             simulateFoxDeaths();
             simulateRabbitLifespan();
+            updateVegetation();
             printf("Day %d:\n", day + 1);
             visualizeIsland();
         }
+    }
+}
+
+// Vegetation Update function
+void updateVegetation() {
+    for (int i = 0; i < GRID_SIZE_X; i++) {
+        for (int j = 0; j < GRID_SIZE_Y; j++) { 
+            // Formula
+            double vegetationChange = (island[i][j].vegetation * 1.1) - (0.001 * island[i][j].rabbits);
+            if (vegetationChange < LOW_VEGETATION_LEVEL) {
+                island[i][j].vegetation = LOW_VEGETATION_LEVEL;
+            }
+            else if (vegetationChange > HIGH_VEGETATION_LEVEL) {
+                island[i][j].vegetation = HIGH_VEGETATION_LEVEL;
+            }
+            else {
+                island[i][j].vegetation = vegetationChange;
+            }
+        }
+    }
+}
+
+// Migration Logic and Function
+void simulateMigration() {
+    for (int i = 0; i < GRID_SIZE_X; i++) {
+        for (int j = 0; j < GRID_SIZE_Y; j++) {
+            if (isWaterEdge(i, j)) {
+                continue;
+            }
+            migrateRabbits(i, j);
+            migrateFoxes(i, j);
+        }   
+    }  
+}
+
+void migrateRabbits(int x, int y) {
+    int tempRabbits[GRID_SIZE_X][GRID_SIZE_Y];
+
+    for (int i = 0; i < GRID_SIZE_X; i++) {
+        for (int j = 0; j < GRID_SIZE_Y; j++) {
+            tempRabbits[i][j] = island[i][j].rabbits;
+        }
+    }
+    // Iterate over each neighboring square
+    for (int dx = -1; dx <= 1; dx++) {
+        for (int dy = -1; dy <= 1; dy++) {
+            if ((dx == 0 && dy == 0) || isWaterEdge(x + dx, y + dy)) {
+                continue;
+            }
+            int migrationCount = rand() % (island[x][y].rabbits + 1);
+            tempRabbits[x + dx][y + dy] += migrationCount;
+            tempRabbits[x][y] -= migrationCount;
+        }
+    }
+    for (int i = 0; i < GRID_SIZE_X; i++) {
+        for (int j = 0; j < GRID_SIZE_Y; j++) {
+            island[i][j].rabbits = tempRabbits[i][j];
+        }
+    }
+}
+
+void migrateFoxes(int x, int y) {
+    int tempFoxes[GRID_SIZE_X][GRID_SIZE_Y];
+
+    for (int i = 0; i < GRID_SIZE_X; i++) {
+        for (int j = 0; j < GRID_SIZE_Y; j++) {
+            tempFoxes[i][j] = island[i][j].foxes;
+        }
+    }
+
+    // Iterate over each neighboring square
+    for (int dx = -1; dx <= 1; dx++) {
+        for (int dy = -1; dy <= 1; dy++) {
+            if ((dx == 0 && dy == 0) || isWaterEdge(x + dx, y + dy)) {
+                continue;
+            }
+            int migrationCount = rand() % (island[x][y].foxes + 1);
+            tempFoxes[x + dx][y + dy] += migrationCount;
+            tempFoxes[x][y] -= migrationCount;
+        }
+    }
+    for (int i = 0; i < GRID_SIZE_X; i++) {
+        for (int j = 0; j < GRID_SIZE_Y; j++) {
+            island[i][j].foxes = tempFoxes[i][j];
+        }
+    }
+}
+
+int isWaterEdge(int x, int y) {
+    if (x == 0 || x == GRID_SIZE_X - 1 || y == 0 || y == GRID_SIZE_Y - 1) {
+        return 1;
+    } else {
+        return 0;
     }
 }

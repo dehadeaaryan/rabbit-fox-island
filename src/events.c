@@ -237,6 +237,25 @@ void simulateRabbitDeath(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], int *age
     }
 }
 
+// Vegetation Update function
+void updateVegetation(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y]) {
+    for (int i = 0; i < GRID_SIZE_X; i++) {
+        for (int j = 0; j < GRID_SIZE_Y; j++) { 
+            // Formula
+            double vegetationChange = (island[i][j].vegetation * 1.1) - (0.001 * island[i][j].rabbits);
+            if (vegetationChange < LOW_VEGETATION_LEVEL) {
+                island[i][j].vegetation = LOW_VEGETATION_LEVEL;
+            }
+            else if (vegetationChange > HIGH_VEGETATION_LEVEL) {
+                island[i][j].vegetation = HIGH_VEGETATION_LEVEL;
+            }
+            else {
+                island[i][j].vegetation = vegetationChange;
+            }
+        }
+    }
+}
+
 // tester
 int main() {
     IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y];
