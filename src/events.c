@@ -254,8 +254,9 @@ int determineFoxEat(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], Position foxP
     return 0;
 }
 
-void simulateRabbitDeaths(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], int rabbitAgeSum)
+int simulateRabbitDeaths(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], int rabbitAgeSum)
 {
+    printf("Rabbit age sum: %d\n", rabbitAgeSum);
     int totalRabbits = 0;
     for (int x = 0; x < GRID_SIZE_X; x++)
     {
@@ -267,13 +268,19 @@ void simulateRabbitDeaths(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], int rab
             {
                 int deadRabbits = (int)(-island[x][y].vegetation / 0.001);
                 island[x][y].rabbits -= deadRabbits;
+                rabbitAgeSum -= deadRabbits * 18;
                 island[x][y].vegetation = 0;
             }
             totalRabbits += island[x][y].rabbits;
         }
     }
+    printf("Total rabbits: %d\n", totalRabbits);
+    printf("Rabbit age sum: %d\n", rabbitAgeSum);
     if (rabbitAgeSum > 0) {
-        int rabbitAgeAverage = rabbitAgeSum / totalRabbits;
+        printf("Rabbit age sum: %d\n", rabbitAgeSum);
+        printf("Total rabbits: %d\n", totalRabbits);
+        float rabbitAgeAverage = (rabbitAgeSum / totalRabbits);
+        printf("Rabbit age average: %f\n", rabbitAgeAverage);
         for (int x = 0; x < GRID_SIZE_X; x++)
         {
             for (int y = 0; y < GRID_SIZE_Y; y++)
@@ -283,22 +290,27 @@ void simulateRabbitDeaths(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], int rab
                 {
                     int rabbitsToKill = (int)(square.rabbits * 0.1);
                     island[x][y].rabbits -= rabbitsToKill;
+                    rabbitAgeSum -= rabbitsToKill * 18;
                 } else if (square.vegetation < 0.25 && rabbitAgeAverage > 6)
                 {
                     int rabbitsToKill = (int)(square.rabbits * 0.1);
                     island[x][y].rabbits -= rabbitsToKill;
+                    rabbitAgeSum -= rabbitsToKill * 18;
                 } else if (square.vegetation < 0.3 && rabbitAgeAverage > 12)
                 {
                     int rabbitsToKill = (int)(square.rabbits * 0.1);
                     island[x][y].rabbits -= rabbitsToKill;
+                    rabbitAgeSum -= rabbitsToKill * 18;
                 } else if (square.vegetation >= 0.35 && rabbitAgeAverage > 18)
                 {
                     int rabbitsToKill = (int)(square.rabbits * 0.1);
                     island[x][y].rabbits -= rabbitsToKill;
+                    rabbitAgeSum -= rabbitsToKill * 18;
                 }
             }
         }
     }
+    return rabbitAgeSum;
 }
 
 void updateVegetation(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y]) {
@@ -306,6 +318,9 @@ void updateVegetation(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y]) {
         for (int j = 0; j < GRID_SIZE_Y; j++) { 
             // Formula
             double vegetationChange = (island[i][j].vegetation * 1.1) - (0.001 * island[i][j].rabbits);
+            if (vegetationChange < 0) {
+                vegetationChange = 0;
+            }
             if (vegetationChange < LOW_VEGETATION_LEVEL) {
                 island[i][j].vegetation = LOW_VEGETATION_LEVEL;
             }

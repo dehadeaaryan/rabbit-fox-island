@@ -6,7 +6,8 @@
 // Island grid
 IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y];
 
-int main() {
+int main()
+{
     srand(time(NULL)); // Seed the random number generator
 
     int choice;
@@ -26,51 +27,65 @@ int main() {
 }
 
 // Function to initialize the island with initial population values and vegetation levels
-void initializeIsland(int caseNumber) {
-int success = 1;
- for (int i = 0; i < GRID_SIZE_X; i++) {
-        for (int j = 0; j < GRID_SIZE_Y; j++) {
-            switch (caseNumber) {
-                case 1:
-                    island[i][j].rabbits = 100;
-                    island[i][j].foxes = 2;
-                    island[i][j].vegetation = 1.0;
-                    break;
-                case 2:
-                    if (i == GRID_SIZE_X - 1 && j == GRID_SIZE_Y - 1) {
-                        island[i][j].rabbits = 800;
-                    } else {
-                        island[i][j].rabbits = 10;
-                    }
-                    if (i == GRID_SIZE_X - 1 && j == GRID_SIZE_Y - 1) {
-                        island[i][j].foxes = 20;
-                    } else {
-                        island[i][j].foxes = 0;
-                    }
-                    island[i][j].vegetation = 0.3;
-                    break;
-                case 3:
-                    island[i][j].rabbits = 2;
+void initializeIsland(int caseNumber)
+{
+    int success = 1;
+    for (int i = 0; i < GRID_SIZE_X; i++)
+    {
+        for (int j = 0; j < GRID_SIZE_Y; j++)
+        {
+            switch (caseNumber)
+            {
+            case 1:
+                island[i][j].rabbits = 100;
+                island[i][j].foxes = 2;
+                island[i][j].vegetation = 1.0;
+                break;
+            case 2:
+                if (i == GRID_SIZE_X - 1 && j == GRID_SIZE_Y - 1)
+                {
+                    island[i][j].rabbits = 800;
+                }
+                else
+                {
+                    island[i][j].rabbits = 10;
+                }
+                if (i == GRID_SIZE_X - 1 && j == GRID_SIZE_Y - 1)
+                {
+                    island[i][j].foxes = 20;
+                }
+                else
+                {
                     island[i][j].foxes = 0;
-                    island[i][j].vegetation = 0.5;
-                    break;
-                default:
-                    printf("Invalid case number.\n");
-                    success = 0; // Indicate failure
-                    break;
+                }
+                island[i][j].vegetation = 0.3;
+                break;
+            case 3:
+                island[i][j].rabbits = 2;
+                island[i][j].foxes = 0;
+                island[i][j].vegetation = 0.5;
+                break;
+            default:
+                printf("Invalid case number.\n");
+                success = 0; // Indicate failure
+                break;
             }
         }
     }
 
-    if (!success) {
+    if (!success)
+    {
         return; // Return outside the parallel region
     }
 }
 
 // Function to visualize the island grid
-void visualizeIsland() {
-    for (int i = 0; i < GRID_SIZE_X; i++) {
-        for (int j = 0; j < GRID_SIZE_Y; j++) {
+void visualizeIsland()
+{
+    for (int i = 0; i < GRID_SIZE_X; i++)
+    {
+        for (int j = 0; j < GRID_SIZE_Y; j++)
+        {
             printf(" %.2f %d %d ", island[i][j].vegetation, island[i][j].foxes, island[i][j].rabbits);
         }
         printf("\n");
@@ -78,28 +93,35 @@ void visualizeIsland() {
 }
 
 // Simulation function
-void simulateIsland(int months) {
+void simulateIsland(int months)
+{
     int daysFor9Weeks = 7 * 9;
     int daysFor6Months = 30 * 6;
     int rabbitAgeSum = 0;
     int foxAgeSum = 0;
-    for (int month = 0; month < months; month++) {
-        for (int i = 0; i < GRID_SIZE_X; i++) {
-            for (int j = 0; j < GRID_SIZE_Y; j++) {
-                rabbitAgeSum += island[i][j].rabbits;
-                foxAgeSum += island[i][j].foxes;
-            }
-        }
+    for (int month = 0; month < months; month++)
+    {
         printf("\nMonth %d:\n", month + 1);
-        for (int day = 0; day < MONTH_DAYS * months; day++) {
+        for (int day = 0; day < MONTH_DAYS * months; day++)
+        {
+            for (int i = 0; i < GRID_SIZE_X; i++)
+            {
+                for (int j = 0; j < GRID_SIZE_Y; j++)
+                {
+                    rabbitAgeSum += island[i][j].rabbits;
+                    foxAgeSum += island[i][j].foxes;
+                }
+            }
             printf("Day %d:\n", day + 1);
-            if ((day % daysFor9Weeks) == 0) {
+            if ((day % daysFor9Weeks) == 0)
+            {
                 simulateRabbitReproduction(island);
             }
-            if ((day % daysFor6Months) == 0) {
+            if ((day % daysFor6Months) == 0)
+            {
                 simulateFoxReproduction(island);
             }
-            simulateRabbitDeaths(island, rabbitAgeSum);
+            rabbitAgeSum = simulateRabbitDeaths(island, rabbitAgeSum);
             simulateFoxDeaths(island, foxAgeSum);
             updateVegetation(island);
             visualizeIsland();
