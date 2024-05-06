@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <stdio.h>
+#include <omp.h>
 
 int caluclateRabbitLitterSize(double vegetation, int initialRabbits);
 void simulateRabbitReproduction(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y]);

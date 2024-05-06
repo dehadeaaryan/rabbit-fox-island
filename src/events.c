@@ -99,6 +99,7 @@ int caluclateRabbitLitterSize(double vegetation, int initialRabbits)
 void simulateRabbitReproduction(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y])
 {
     int previousRabbitCount = 0;
+    #pragma omp parallel for reduction(+:previousRabbitCount)
     for (int i = 0; i < GRID_SIZE_X; i++)
     {
         for (int j = 0; j < GRID_SIZE_Y; j++)
@@ -212,6 +213,7 @@ int calculateFoxLitterSize(int initialRabbits, int initialFoxes)
 void simulateFoxReproduction(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y])
 {
     int previousFoxCount = 0;
+    #pragma omp parallel for reduction(+:previousFoxCount)
     for (int i = 0; i < GRID_SIZE_X; i++)
     {
         for (int j = 0; j < GRID_SIZE_Y; j++)
@@ -256,7 +258,6 @@ int determineFoxEat(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], Position foxP
 
 int simulateRabbitDeaths(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], int rabbitAgeSum)
 {
-    printf("Rabbit age sum: %d\n", rabbitAgeSum);
     int totalRabbits = 0;
     for (int x = 0; x < GRID_SIZE_X; x++)
     {
@@ -267,20 +268,18 @@ int simulateRabbitDeaths(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], int rabb
             if (island[x][y].vegetation < 0)
             {
                 int deadRabbits = (int)(-island[x][y].vegetation / 0.001);
+                if (deadRabbits > island[x][y].rabbits)
+                {
+                    deadRabbits = island[x][y].rabbits;
+                }
                 island[x][y].rabbits -= deadRabbits;
-                rabbitAgeSum -= deadRabbits * 18;
                 island[x][y].vegetation = 0;
             }
             totalRabbits += island[x][y].rabbits;
         }
     }
-    printf("Total rabbits: %d\n", totalRabbits);
-    printf("Rabbit age sum: %d\n", rabbitAgeSum);
     if (rabbitAgeSum > 0) {
-        printf("Rabbit age sum: %d\n", rabbitAgeSum);
-        printf("Total rabbits: %d\n", totalRabbits);
         float rabbitAgeAverage = (rabbitAgeSum / totalRabbits);
-        printf("Rabbit age average: %f\n", rabbitAgeAverage);
         for (int x = 0; x < GRID_SIZE_X; x++)
         {
             for (int y = 0; y < GRID_SIZE_Y; y++)
@@ -290,22 +289,18 @@ int simulateRabbitDeaths(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], int rabb
                 {
                     int rabbitsToKill = (int)(square.rabbits * 0.1);
                     island[x][y].rabbits -= rabbitsToKill;
-                    rabbitAgeSum -= rabbitsToKill * 18;
                 } else if (square.vegetation < 0.25 && rabbitAgeAverage > 6)
                 {
                     int rabbitsToKill = (int)(square.rabbits * 0.1);
                     island[x][y].rabbits -= rabbitsToKill;
-                    rabbitAgeSum -= rabbitsToKill * 18;
                 } else if (square.vegetation < 0.3 && rabbitAgeAverage > 12)
                 {
                     int rabbitsToKill = (int)(square.rabbits * 0.1);
                     island[x][y].rabbits -= rabbitsToKill;
-                    rabbitAgeSum -= rabbitsToKill * 18;
                 } else if (square.vegetation >= 0.35 && rabbitAgeAverage > 18)
                 {
                     int rabbitsToKill = (int)(square.rabbits * 0.1);
                     island[x][y].rabbits -= rabbitsToKill;
-                    rabbitAgeSum -= rabbitsToKill * 18;
                 }
             }
         }

@@ -1,22 +1,33 @@
-CC = mpic++
-CFLAGS = -std=c++11 -O2
-BINDIR = bin
+# Makefile for compiling rabbitfox.c
 
-SRCS = src/main.cpp src/island.cpp
-OBJS = $(patsubst src/%.cpp,$(BINDIR)/%.o,$(SRCS))
+# Compiler
+CC = gcc
 
-TARGET = $(BINDIR)/island_simulation
+# Compiler flags
+CFLAGS = -Wall -Wextra -std=c99
 
-all: $(TARGET)
+# Source files
+SRCS = rabbitfox.c events.c
 
-$(TARGET): $(OBJS) | $(BINDIR)
-	$(CC) $(CFLAGS) $(OBJS) -o $(TARGET)
+# Object files
+OBJS = $(SRCS:.c=.o)
 
-$(BINDIR)/%.o: src/%.cpp | $(BINDIR)
-	$(CC) $(CFLAGS) -c $< -o $@
+# Header files directory
+INCDIR = .
 
-$(BINDIR):
-	mkdir -p $(BINDIR)
+# Executable name
+EXEC = rabbitfox
+
+# Targets
+all: $(EXEC)
+
+$(EXEC): $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $^
+
+%.o: %.c
+	$(CC) $(CFLAGS) -I$(INCDIR) -c $<
 
 clean:
-	rm -rf $(BINDIR) $(TARGET)
+	rm -f $(EXEC) $(OBJS)
+
+.PHONY: all clean
