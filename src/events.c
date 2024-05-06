@@ -302,6 +302,10 @@ int simulateRabbitDeaths(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], int rabb
                     int rabbitsToKill = (int)(square.rabbits * 0.1);
                     island[x][y].rabbits -= rabbitsToKill;
                 }
+                if (island[x][y].rabbits < 0)
+                {
+                    island[x][y].rabbits = 0;
+                }
             }
         }
     }
@@ -449,6 +453,9 @@ void simulateFoxDeaths(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], int foxAge
                         }
                     }
                 }
+            }
+            if (island[i][j].foxes < 0) {
+                island[i][j].foxes = 0;
             }
             totalFoxes += island[i][j].foxes;
         }

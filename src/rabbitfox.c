@@ -113,19 +113,33 @@ void simulateIsland(int months)
                 }
             }
             printf("Day %d:\n", day + 1);
-            if ((day % daysFor9Weeks) == 0)
+            if ((day % daysFor9Weeks) == 0 && day != 0)
             {
+                printf("Rabbit");
                 simulateRabbitReproduction(island);
             }
-            if ((day % daysFor6Months) == 0)
+            if ((day % daysFor6Months) == 0 && day != 0)
             {
+                printf("Fox");
                 simulateFoxReproduction(island);
             }
+            int totalRabbits = 0;
+            int totalFoxes = 0;
+            for (int i = 0; i < GRID_SIZE_X; i++)
+            {
+                for (int j = 0; j < GRID_SIZE_Y; j++)
+                {
+                    totalRabbits += island[i][j].rabbits;
+                    totalFoxes += island[i][j].foxes;
+                }
+            }
+            printf("Rabbit age sum: %d\n", totalRabbits);
+            printf("Fox age sum: %d\n", totalFoxes);
             rabbitAgeSum = simulateRabbitDeaths(island, rabbitAgeSum);
             simulateFoxDeaths(island, foxAgeSum);
             updateVegetation(island);
             visualizeIsland();
-            simulateMigration(island);
+            // simulateMigration(island);
         }
     }
 }
