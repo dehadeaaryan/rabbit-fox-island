@@ -98,10 +98,12 @@ int caluclateRabbitLitterSize(double vegetation, int initialRabbits)
 
 void simulateRabbitReproduction(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y])
 {
+    srand(time(NULL));
     int previousRabbitCount = 0;
     #pragma omp parallel for reduction(+:previousRabbitCount)
     for (int i = 0; i < GRID_SIZE_X; i++)
     {
+        int childRabbits = (rand() % 4) + 4;
         for (int j = 0; j < GRID_SIZE_Y; j++)
         {
             previousRabbitCount += island[i][j].rabbits;
@@ -109,6 +111,7 @@ void simulateRabbitReproduction(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y])
             {
                 int babyRabbits = caluclateRabbitLitterSize(island[i][j].vegetation, island[i][j].rabbits);
                 island[i][j].rabbits += babyRabbits;
+                island[i][j].rabbits += childRabbits;
             }
         }
     }
@@ -218,6 +221,7 @@ void simulateFoxReproduction(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y])
     {
         for (int j = 0; j < GRID_SIZE_Y; j++)
         {
+            if (island[i][j].foxes > 2) island[i][j].foxes += 3;
             previousFoxCount += island[i][j].foxes;
             for (int k = 0; k < previousFoxCount / 2; k++)
             {
