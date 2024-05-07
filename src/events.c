@@ -290,7 +290,7 @@ int simulateRabbitDeaths(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], int rabb
         {
             for (int y = 0; y < GRID_SIZE_Y; y++)
             {
-                square.rabbits -= ((rand() % 3) + 4);
+                island[x][y].rabbits -= ((rand() % 3) + 4);
                 IslandSquare square = island[x][y];
                 if (square.vegetation < 0.15 && rabbitAgeAverage > 3)
                 {
