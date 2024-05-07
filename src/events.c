@@ -1,5 +1,6 @@
 #include "events.h"
 
+// Function to calculate the number of baby rabbits based on the vegetation level and initial rabbit population
 int caluclateRabbitLitterSize(double vegetation, int initialRabbits)
 {
     if (vegetation < LOW_VEGETATION)
@@ -96,6 +97,7 @@ int caluclateRabbitLitterSize(double vegetation, int initialRabbits)
     }
 }
 
+// Function to simulate rabbit reproduction
 void simulateRabbitReproduction(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y])
 {
     srand(time(NULL));
@@ -117,6 +119,7 @@ void simulateRabbitReproduction(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y])
     }
 }
 
+// Function to calculate the number of baby foxes based on the initial rabbit and fox population
 int calculateFoxLitterSize(int initialRabbits, int initialFoxes)
 {
     if (initialRabbits < LOW_RABBITS_FOX)
@@ -213,6 +216,7 @@ int calculateFoxLitterSize(int initialRabbits, int initialFoxes)
     }
 }
 
+// Function to simulate fox reproduction
 void simulateFoxReproduction(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y])
 {
     int previousFoxCount = 0;
@@ -232,6 +236,7 @@ void simulateFoxReproduction(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y])
     }
 }
 
+// Function to determine if a fox eats a rabbit
 int determineFoxEat(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], Position foxPosition)
 {
     int x = foxPosition.x;
@@ -259,6 +264,7 @@ int determineFoxEat(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], Position foxP
     }
     return 0;
 }
+
 // Death and births
 int simulateRabbitDeaths(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], int rabbitAgeSum)
 {
@@ -319,7 +325,7 @@ int simulateRabbitDeaths(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], int rabb
     return rabbitAgeSum;
 }
 
-
+// Function to simulate fox deaths
 void updateVegetation(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y]) {
     for (int i = 0; i < GRID_SIZE_X; i++) {
         for (int j = 0; j < GRID_SIZE_Y; j++) { 
@@ -341,6 +347,7 @@ void updateVegetation(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y]) {
     }
 }
 
+// Function to check water edge
 int isWaterEdge(Position position) {
     if (position.x == 0 || position.x == GRID_SIZE_X - 1 || position.y == 0 || position.y == GRID_SIZE_Y - 1) {
         return 1;
@@ -348,6 +355,7 @@ int isWaterEdge(Position position) {
     return 0;
 }
 
+// Function to migrate rabbits
 void migrateRabbits(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], Position position) {
     int x = position.x;
     int y = position.y;
@@ -391,6 +399,7 @@ void migrateRabbits(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], Position posi
     }
 }
 
+// Function to migrate foxes to other boxes
 void migrateFoxes(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], Position position) {
     int x = position.x;
     int y = position.y;
@@ -433,7 +442,7 @@ void migrateFoxes(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], Position positi
     }
 }
 
-
+// Function to simulate all migration
 void simulateMigration(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y]) {
     for (int i = 0; i < GRID_SIZE_X; i++) {
         for (int j = 0; j < GRID_SIZE_Y; j++) {
