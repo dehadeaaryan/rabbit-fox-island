@@ -255,7 +255,7 @@ int determineFoxEat(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], Position foxP
     }
     return 0;
 }
-
+// Death and births
 int simulateRabbitDeaths(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], int rabbitAgeSum)
 {
     int totalRabbits = 0;
@@ -278,8 +278,9 @@ int simulateRabbitDeaths(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], int rabb
             totalRabbits += island[x][y].rabbits;
         }
     }
-    if (rabbitAgeSum > 0) {
-        float rabbitAgeAverage = (rabbitAgeSum / totalRabbits);
+
+    if (totalRabbits > 0) {
+        float rabbitAgeAverage = (float)rabbitAgeSum / totalRabbits;
         for (int x = 0; x < GRID_SIZE_X; x++)
         {
             for (int y = 0; y < GRID_SIZE_Y; y++)
@@ -309,8 +310,10 @@ int simulateRabbitDeaths(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], int rabb
             }
         }
     }
+
     return rabbitAgeSum;
 }
+
 
 void updateVegetation(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y]) {
     for (int i = 0; i < GRID_SIZE_X; i++) {

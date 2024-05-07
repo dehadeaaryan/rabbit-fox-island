@@ -21,7 +21,7 @@ int main()
     initializeIsland(choice);
 
     visualizeIsland();
-    simulateIsland(1); // Simulate the island for one month
+    simulateIsland(6); // Simulate the island for one month
 
     return 0;
 }
