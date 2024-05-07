@@ -489,6 +489,7 @@ void simulateFoxDeaths(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], int foxAge
                     }
                 }
             }
+            island[i][j].foxes -= (rand() % 3) + 2;
             if (island[i][j].foxes < 0) {
                 island[i][j].foxes = 0;
             }
