@@ -262,6 +262,8 @@ int determineFoxEat(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], Position foxP
 // Death and births
 int simulateRabbitDeaths(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], int rabbitAgeSum)
 {
+    // seed random
+    srand(time(NULL));
     int totalRabbits = 0;
     for (int x = 0; x < GRID_SIZE_X; x++)
     {
@@ -282,13 +284,13 @@ int simulateRabbitDeaths(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], int rabb
             totalRabbits += island[x][y].rabbits;
         }
     }
-
     if (totalRabbits > 0) {
         float rabbitAgeAverage = (float)rabbitAgeSum / totalRabbits;
         for (int x = 0; x < GRID_SIZE_X; x++)
         {
             for (int y = 0; y < GRID_SIZE_Y; y++)
             {
+                square.rabbits -= ((rand() % 3) + 4);
                 IslandSquare square = island[x][y];
                 if (square.vegetation < 0.15 && rabbitAgeAverage > 3)
                 {
@@ -314,7 +316,6 @@ int simulateRabbitDeaths(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], int rabb
             }
         }
     }
-
     return rabbitAgeSum;
 }
 

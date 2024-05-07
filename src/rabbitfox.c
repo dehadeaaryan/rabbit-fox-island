@@ -102,16 +102,21 @@ void simulateIsland(int months)
     int foxAgeSum = 0;
     for (int month = 0; month < months; month++)
     {
+        // seed rand
+        srand(time(NULL));
         printf("\nMonth %d:\n", month + 1);
         for (int day = 0; day < MONTH_DAYS * months; day++)
         {
+            int r = rand() % 10 + 4;
             #pragma omp parallel for reduction(+:rabbitAgeSum,foxAgeSum)
             for (int i = 0; i < GRID_SIZE_X; i++)
             {
                 for (int j = 0; j < GRID_SIZE_Y; j++)
                 {
                     rabbitAgeSum += island[i][j].rabbits;
+                    island[i][j].rabbits += r;
                     foxAgeSum += island[i][j].foxes;
+                    island[i][j].foxes += (r - 2);
                 }
             }
             printf("Day %d:\n", day + 1);
