@@ -350,14 +350,28 @@ void migrateRabbits(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], Position posi
             tempRabbits[i][j] = island[i][j].rabbits;
         }
     }
-    // Iterate over each neighboring square
+    int totalPopulation = 0;
     for (int dx = -1; dx <= 1; dx++) {
         for (int dy = -1; dy <= 1; dy++) {
             Position newPosition = {x + dx, y + dy};
             if ((dx == 0 && dy == 0) || isWaterEdge(newPosition)) {
                 continue;
             }
-            int migrationCount = rand() % (island[x][y].rabbits + 1);
+            totalPopulation += island[x + dx][y + dy].rabbits;
+        }
+    }
+    // Check if total population is zero and skip migration if total population is zero
+    if (totalPopulation == 0) {
+        return;
+    }
+    for (int dx = -1; dx <= 1; dx++) {
+        for (int dy = -1; dy <= 1; dy++) {
+            Position newPosition = {x + dx, y + dy};
+            if ((dx == 0 && dy == 0) || isWaterEdge(newPosition)) {
+                continue;
+            }
+            // Calculate migration count based on relative population
+            int migrationCount = island[x][y].rabbits * island[x + dx][y + dy].rabbits / totalPopulation;
             tempRabbits[x + dx][y + dy] += migrationCount;
             tempRabbits[x][y] -= migrationCount;
         }
@@ -379,15 +393,27 @@ void migrateFoxes(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], Position positi
             tempFoxes[i][j] = island[i][j].foxes;
         }
     }
-
-    // Iterate over each neighboring square
+    int totalPopulation = 0;
     for (int dx = -1; dx <= 1; dx++) {
         for (int dy = -1; dy <= 1; dy++) {
             Position newPosition = {x + dx, y + dy};
             if ((dx == 0 && dy == 0) || isWaterEdge(newPosition)) {
                 continue;
             }
-            int migrationCount = rand() % (island[x][y].foxes + 1);
+            totalPopulation += island[x + dx][y + dy].foxes;
+        }
+    }
+    if (totalPopulation == 0) {
+        return;
+    }
+    for (int dx = -1; dx <= 1; dx++) {
+        for (int dy = -1; dy <= 1; dy++) {
+            Position newPosition = {x + dx, y + dy};
+            if ((dx == 0 && dy == 0) || isWaterEdge(newPosition)) {
+                continue;
+            }
+            // Calculate migration count based on relative population
+            int migrationCount = island[x][y].foxes * island[x + dx][y + dy].foxes / totalPopulation;
             tempFoxes[x + dx][y + dy] += migrationCount;
             tempFoxes[x][y] -= migrationCount;
         }
@@ -398,6 +424,7 @@ void migrateFoxes(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], Position positi
         }
     }
 }
+
 
 void simulateMigration(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y]) {
     for (int i = 0; i < GRID_SIZE_X; i++) {

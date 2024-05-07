@@ -139,7 +139,7 @@ void simulateIsland(int months)
             simulateFoxDeaths(island, foxAgeSum);
             updateVegetation(island);
             visualizeIsland();
-            // simulateMigration(island);
+            simulateMigration(island);
         }
     }
 }
