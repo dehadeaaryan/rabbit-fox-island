@@ -271,6 +271,7 @@ int simulateRabbitDeaths(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], int rabb
     // seed random
     srand(time(NULL));
     int totalRabbits = 0;
+    #pragma omp parallel for reduction(+:totalRabbits)
     for (int x = 0; x < GRID_SIZE_X; x++)
     {
         for (int y = 0; y < GRID_SIZE_Y; y++)
@@ -327,12 +328,17 @@ int simulateRabbitDeaths(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], int rabb
 
 // Function to simulate fox deaths
 void updateVegetation(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y]) {
+    #pragma omp parallel for collapse(2)
     for (int i = 0; i < GRID_SIZE_X; i++) {
         for (int j = 0; j < GRID_SIZE_Y; j++) { 
             // Formula
             double vegetationChange = (island[i][j].vegetation * 1.1) - (0.001 * island[i][j].rabbits);
             if (vegetationChange < 0) {
                 vegetationChange = 0;
+            }
+            island[i][j].vegetation += 0.1;
+            if (island[i][j].vegetation > 0.8) {
+                island[i][j].vegetation = 0.8;
             }
             if (vegetationChange < LOW_VEGETATION_LEVEL) {
                 island[i][j].vegetation = LOW_VEGETATION_LEVEL;
@@ -361,12 +367,14 @@ void migrateRabbits(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], Position posi
     int y = position.y;
     int tempRabbits[GRID_SIZE_X][GRID_SIZE_Y];
 
+    #pragma omp parallel for collapse(2)
     for (int i = 0; i < GRID_SIZE_X; i++) {
         for (int j = 0; j < GRID_SIZE_Y; j++) {
             tempRabbits[i][j] = island[i][j].rabbits;
         }
     }
     int totalPopulation = 0;
+    #pragma omp parallel for reduction(+:totalPopulation)
     for (int dx = -1; dx <= 1; dx++) {
         for (int dy = -1; dy <= 1; dy++) {
             Position newPosition = {x + dx, y + dy};
@@ -380,6 +388,7 @@ void migrateRabbits(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], Position posi
     if (totalPopulation == 0) {
         return;
     }
+    #pragma omp parallel for collapse(2)
     for (int dx = -1; dx <= 1; dx++) {
         for (int dy = -1; dy <= 1; dy++) {
             Position newPosition = {x + dx, y + dy};
@@ -392,6 +401,7 @@ void migrateRabbits(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], Position posi
             tempRabbits[x][y] -= migrationCount;
         }
     }
+    #pragma omp parallel for collapse(2)
     for (int i = 0; i < GRID_SIZE_X; i++) {
         for (int j = 0; j < GRID_SIZE_Y; j++) {
             island[i][j].rabbits = tempRabbits[i][j];
@@ -405,12 +415,14 @@ void migrateFoxes(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], Position positi
     int y = position.y;
     int tempFoxes[GRID_SIZE_X][GRID_SIZE_Y];
 
+    #pragma omp parallel for collapse(2)
     for (int i = 0; i < GRID_SIZE_X; i++) {
         for (int j = 0; j < GRID_SIZE_Y; j++) {
             tempFoxes[i][j] = island[i][j].foxes;
         }
     }
     int totalPopulation = 0;
+    #pragma omp parallel for reduction(+:totalPopulation)
     for (int dx = -1; dx <= 1; dx++) {
         for (int dy = -1; dy <= 1; dy++) {
             Position newPosition = {x + dx, y + dy};
@@ -423,6 +435,7 @@ void migrateFoxes(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], Position positi
     if (totalPopulation == 0) {
         return;
     }
+    #pragma omp parallel for collapse(2)
     for (int dx = -1; dx <= 1; dx++) {
         for (int dy = -1; dy <= 1; dy++) {
             Position newPosition = {x + dx, y + dy};
@@ -435,6 +448,7 @@ void migrateFoxes(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], Position positi
             tempFoxes[x][y] -= migrationCount;
         }
     }
+    #pragma omp parallel for collapse(2)
     for (int i = 0; i < GRID_SIZE_X; i++) {
         for (int j = 0; j < GRID_SIZE_Y; j++) {
             island[i][j].foxes = tempFoxes[i][j];
@@ -444,6 +458,7 @@ void migrateFoxes(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], Position positi
 
 // Function to simulate all migration
 void simulateMigration(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y]) {
+    #pragma omp parallel for collapse(2)
     for (int i = 0; i < GRID_SIZE_X; i++) {
         for (int j = 0; j < GRID_SIZE_Y; j++) {
             Position position = {i, j};
@@ -458,19 +473,25 @@ void simulateMigration(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y]) {
 
 void simulateFoxDeaths(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], int foxAgeSum) {
     int totalFoxes = 0;
+
+    // Parallelize the outer loops to distribute workload across multiple threads
+    #pragma omp parallel for collapse(2) reduction(+:totalFoxes)
     for (int i = 0; i < GRID_SIZE_X; i++) {
         for (int j = 0; j < GRID_SIZE_Y; j++) {
-            // Calculate the chance of a fox dying due to natural causes
             double naturalDeathChance = 0.1; // 10% chance of natural death
             
+            int localTotalFoxes = 0;
+
             // Determine if each fox eats a rabbit
+            #pragma omp parallel for reduction(+:localTotalFoxes)
             for (int fox = 0; fox < island[i][j].foxes; fox++) {
                 int eatsRabbit = determineFoxEat(island, (Position){i, j});
-                
+
                 // Generate a random number to determine if a fox dies due to natural causes
                 double naturalDeathRandom = (double)rand() / 100;
                 if (naturalDeathRandom < naturalDeathChance) {
                     // Fox dies due to natural causes
+                    #pragma omp atomic
                     island[i][j].foxes--;
                     if (island[i][j].foxes < 0) {
                         island[i][j].foxes = 0;
@@ -481,6 +502,7 @@ void simulateFoxDeaths(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], int foxAge
                 if (island[i][j].foxes > 0) {
                     if (eatsRabbit) {
                         // Fox eats a rabbit
+                        #pragma omp atomic
                         island[i][j].rabbits--;
                         if (island[i][j].rabbits < 0) {
                             island[i][j].rabbits = 0;
@@ -490,6 +512,7 @@ void simulateFoxDeaths(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], int foxAge
                         double starvationDeathRandom = (double)rand() / 100;
                         if (starvationDeathRandom < 0.1) { // 10% chance of starvation death
                             // Fox dies due to starvation
+                            #pragma omp atomic
                             island[i][j].foxes--;
                             if (island[i][j].foxes < 0) {
                                 island[i][j].foxes = 0;
@@ -497,21 +520,30 @@ void simulateFoxDeaths(IslandSquare island[GRID_SIZE_X][GRID_SIZE_Y], int foxAge
                         }
                     }
                 }
+                localTotalFoxes++;
             }
+
+            // Update totalFoxes using reduction clause
+            totalFoxes += localTotalFoxes;
+
+            // Apply additional fox death logic
             island[i][j].foxes -= 6;
             if (island[i][j].foxes < 0) {
                 island[i][j].foxes = 0;
             }
-            totalFoxes += island[i][j].foxes;
         }
     }
-    if (foxAgeSum > 0){
-        int foxAgeAverage = foxAgeSum / totalFoxes;
+
+    // Apply additional fox death logic based on foxAgeSum
+    if (foxAgeSum > 0) {
+        #pragma omp parallel for collapse(2)
         for (int i = 0; i < GRID_SIZE_X; i++) {
             for (int j = 0; j < GRID_SIZE_Y; j++) {
                 IslandSquare square = island[i][j];
+                int foxAgeAverage = foxAgeSum / totalFoxes;
                 if (foxAgeAverage > 4) {
                     int foxesToKill = (int)(square.foxes * 0.1);
+                    #pragma omp atomic
                     island[i][j].foxes -= foxesToKill;
                 }
             }
