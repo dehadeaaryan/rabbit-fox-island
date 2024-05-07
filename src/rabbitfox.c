@@ -94,32 +94,22 @@ void visualizeIsland()
 }
 
 // Simulation function
+// Simulation function
 void simulateIsland(int months)
 {
-    // Open file for writing
-    FILE *fp;
-    fp = fopen("simulation_results.csv", "w");
-    if (fp == NULL) {
-        printf("Error opening file!\n");
-        exit(1);
-    }
-
-    // Write headers
-    fprintf(fp, "Month,Vegetation,Foxes,Rabbits\n");
-
     int daysFor9Weeks = 7 * 9;
     int daysFor6Months = 30 * 6;
     int rabbitAgeSum = 0;
     int foxAgeSum = 0;
-
     for (int month = 0; month < months; month++)
     {
         // seed rand
         srand(time(NULL));
-        fprintf(fp, "%d,", month + 1);
-        for (int day = 0; day < MONTH_DAYS; day++)
+        printf("\nMonth %d:\n", month + 1);
+        for (int day = 0; day < MONTH_DAYS * months; day++)
         {
             int r = rand() % 10 + 4;
+            // #pragma omp parallel for reduction(+:rabbitAgeSum,foxAgeSum)
             for (int i = 0; i < GRID_SIZE_X; i++)
             {
                 for (int j = 0; j < GRID_SIZE_Y; j++)
@@ -130,12 +120,15 @@ void simulateIsland(int months)
                     island[i][j].foxes += (r - 2);
                 }
             }
+            printf("Day %d:\n", day + 1);
             if ((day % daysFor9Weeks) == 0 && day != 0)
             {
+                printf("Rabbit");
                 simulateRabbitReproduction(island);
             }
             if ((day % daysFor6Months) == 0 && day != 0)
             {
+                printf("Fox");
                 simulateFoxReproduction(island);
             }
             int totalRabbits = 0;
@@ -148,14 +141,87 @@ void simulateIsland(int months)
                     totalFoxes += island[i][j].foxes;
                 }
             }
-            fprintf(fp, "%d,%d,%f,", totalRabbits, totalFoxes, island[0][0].vegetation);
+            // printf("Rabbit age sum: %d\n", totalRabbits);
+            // printf("Fox age sum: %d\n", totalFoxes);
             rabbitAgeSum = simulateRabbitDeaths(island, rabbitAgeSum);
             simulateFoxDeaths(island, foxAgeSum);
             updateVegetation(island);
-        }
-        fprintf(fp, "\n");
-    }
+            visualizeIsland();
+            simulateMigration(island);
 
-    // Close file
-    fclose(fp);
+            // Check if the current day number equals the end of the current month
+            if ((day + 1) % MONTH_DAYS == 0)
+            {
+                printf("Simulation stopped at the end of month %d.\n", month + 1);
+                break; // Exit the loop for this month
+            }
+        }
+    }
 }
+
+// Simulation function for excel file
+// void simulateIsland(int months)
+// {
+//     // Open file for writing
+//     FILE *fp;
+//     fp = fopen("simulation_results.csv", "w");
+//     if (fp == NULL) {
+//         printf("Error opening file!\n");
+//         exit(1);
+//     }
+
+//     // Write headers
+//     fprintf(fp, "Month,Vegetation,Foxes,Rabbits\n");
+
+//     int daysFor9Weeks = 7 * 9;
+//     int daysFor6Months = 30 * 6;
+//     int rabbitAgeSum = 0;
+//     int foxAgeSum = 0;
+
+//     for (int month = 0; month < months; month++)
+//     {
+//         // seed rand
+//         srand(time(NULL));
+//         fprintf(fp, "%d,", month + 1);
+//         for (int day = 0; day < MONTH_DAYS; day++)
+//         {
+//             int r = rand() % 10 + 4;
+//             for (int i = 0; i < GRID_SIZE_X; i++)
+//             {
+//                 for (int j = 0; j < GRID_SIZE_Y; j++)
+//                 {
+//                     rabbitAgeSum += island[i][j].rabbits;
+//                     island[i][j].rabbits += r;
+//                     foxAgeSum += island[i][j].foxes;
+//                     island[i][j].foxes += (r - 2);
+//                 }
+//             }
+//             if ((day % daysFor9Weeks) == 0 && day != 0)
+//             {
+//                 simulateRabbitReproduction(island);
+//             }
+//             if ((day % daysFor6Months) == 0 && day != 0)
+//             {
+//                 simulateFoxReproduction(island);
+//             }
+//             int totalRabbits = 0;
+//             int totalFoxes = 0;
+//             for (int i = 0; i < GRID_SIZE_X; i++)
+//             {
+//                 for (int j = 0; j < GRID_SIZE_Y; j++)
+//                 {
+//                     totalRabbits += island[i][j].rabbits;
+//                     totalFoxes += island[i][j].foxes;
+//                 }
+//             }
+//             fprintf(fp, "%d,%d,%f,", totalRabbits, totalFoxes, island[0][0].vegetation);
+//             rabbitAgeSum = simulateRabbitDeaths(island, rabbitAgeSum);
+//             simulateFoxDeaths(island, foxAgeSum);
+//             updateVegetation(island);
+//         }
+//         fprintf(fp, "\n");
+//     }
+
+//     // Close file
+//     fclose(fp);
+// }
